@@ -19,13 +19,16 @@
 		titles = titles.filter(title => title !== e.target.value);
 	}
 	function addTask() {
+		console.log(titles, newTitle)
 		titles = [...titles, newTitle];
 		newTitle = '';
 		const scrollWrapper = document.querySelector('#scroll')
 		scrollWrapper.scrollTop = scrollWrapper.scrollHeight;
 	}
 	function submitChain() {
-		let chain = titles.map((title, i) => { title, id: i, isCompleted: false });
+		let chain = titles.map((title, i) => {
+			return { title, id: i, isCompleted: false }
+		});
 		dispatch('submitChain', { chain })
 	}
 </script>
@@ -52,7 +55,7 @@
 		{/each}
 	</ul>
 
-	<form on:submit|preventDefault={addTask} class="py-2 px-4 border border-gray-800 border-solid bg-gray-200">
+	<form on:submit|preventDefault={() => addTask} class="py-2 px-4 border border-gray-800 border-solid bg-gray-200">
 		<label class="mb-2">
 			<span class="text-xl">New task name</span>
 			<input class="w-full shadow-sm border-gray-700" bind:value={newTitle} />
