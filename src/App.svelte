@@ -54,8 +54,14 @@
 		tab = e.target.value;
 	}
 	function toggleComplete({ detail }) {
+    const title = tasks.filter(task => task.id === detail.id)[0].title;
+    const updatedTask = {
+      id: detail.id,
+      isCompleted: detail.isCompleted,
+      title
+    }
 		tasks = tasks.filter(task => task.id !== detail.id);
-		tasks = [...tasks, detail];
+		tasks = [...tasks, updatedTask];
 		tasks = tasks.sort((a,b) => a.id - b.id);
 		localStorage.setItem('tasks', tasks);
 	}
@@ -125,38 +131,18 @@
 
 	<!-- TODAY -->
 	{#if tab === 'today'}
-		<div class="flex">
-			<div class="w-1/2">
-				<p>Current streak: {currentStreak}</p>
-				<p class="mb-4">Longest streak: {longestStreak}</p>
-			</div>
-			<div class="w-1/2">
-				{#if tasksLeft}
-					<p class="text-lg text-right">Tasks left: {tasksLeft}</p>
-				{:else}
-					<p class="text-lg text-right font-bold">All done for the day!</p>
-				{/if}
-			</div>
-		</div>
-
-		<div
-			id="scroll"
-			class="border-gray-500 border-2 p-2 shadow-lg overflow-y-scroll"
-			in:fly="{{ y: 200, duration: 700, delay: 250 }}"
-			out:fly="{{ y: -200, duration: 500 }}"
-		>
-			<h2 class="text-2xl text-center">{day.toLocaleDateString('en', { month: 'long', day: 'numeric' })}</h2>
-			{#each tasks as task }
-				<Today {...task} on:toggleComplete={toggleComplete} />
-			{/each}
-		</div>
-		<button
-			class="fixed bottom-0 left-0 m-4 border-gray-800 border-solid bg-gray-200 py-1 px-3 text-2xl font-bold rounded-lg border-2"
-			on:click={submitDay}>Submit</button>
+		<Today
+      {tasks}
+      {currentStreak}
+      {longestStreak}
+			{day}
+			{tasksLeft}
+			on:submitDay={submitDay}
+    />
 	{:else}
 		<EditChain
-			isFirstTime={isFirstTime}
-			tasks={tasks}
+			{isFirstTime}
+			{tasks}
 			on:submitChain={submitChain}
 		/>
 	{/if}
@@ -174,7 +160,7 @@
 {#if isNav}
 	<nav
 		class="mobileNav z-10 fixed rounded-full bg-gray-200 border-4 border-solid border-gray-800 shadow-lg"
-		transition:fly="{{ x: 200, y: 200, duration: 300 }}"
+		transition:fly={{ x: 200, y: 200, duration: 300 }}
 	>
 		<button
 			type="button" value="today"
