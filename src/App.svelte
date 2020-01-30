@@ -1,7 +1,7 @@
 <script>
-	import { fly } from 'svelte/transition';
-	import { flip } from 'svelte/animate';
 	import { onMount } from 'svelte';
+	import { scale } from 'svelte/transition';
+	import { bounceOut, quadIn } from 'svelte/easing';
 
 	import Tailwindcss from './Tailwindcss.svelte';
 	import EditChain from './EditChain.svelte';
@@ -30,9 +30,9 @@
 
 			if (localStorage.history) {
 				history = JSON.parse(localStorage.getItem('history'));
-				const { epoch } = history[history.length - 1];
+				const epoch = history[history.length - 1].day;
 				day = new Date(epoch);
-				day = day.setDate(day.getDate() + 1);
+				day = new Date(day.setDate(day.getDate() + 1));
 			}
 			if (localStorage.currentStreak) {
 				currentStreak = localStorage.getItem('currentStreak');
@@ -40,6 +40,8 @@
 			if (localStorage.longestStreak) {
 				longestStreak = localStorage.getItem('longestStreak');
 			}
+
+			if (day.getTime() > new Date().getTime()) tab = 'today'
 
 		} else {
 			tab = 'edit';
@@ -49,32 +51,38 @@
 
 	$: tasksLeft = tasks.filter(task => task.isCompleted === false).length;
 
-
 	function changeTab(e) {
 		tab = e.target.value;
+		isNav = false;
 	}
 	function toggleComplete({ detail }) {
-    const title = tasks.filter(task => task.id === detail.id)[0].title;
+		const task = tasks[detail.id];
+		console.log(task)
+		const { isCompleted, id, title } = task;
     const updatedTask = {
       id: detail.id,
-      isCompleted: detail.isCompleted,
+      isCompleted: !isCompleted,
       title
     }
+		console.log('pre', tasks)
 		tasks = tasks.filter(task => task.id !== detail.id);
+		console.log('post', tasks)
+
 		tasks = [...tasks, updatedTask];
 		tasks = tasks.sort((a,b) => a.id - b.id);
-		localStorage.setItem('tasks', tasks);
+		localStorage.setItem('tasks', JSON.stringify(tasks));
 	}
 	function openNav() {
 		isNav = !isNav;
 	}
 	function submitDay() {
+		// todo : after submit change to cal tab draw happy face
 		isSubmitted = true;
 		const isCompleted = tasksLeft ? false: true;
 		currentStreak = isCompleted ? currentStreak + 1 : 0;
 		history.push({
 			day: day.getTime(),
-			tasks: JSON.stringify(tasks),
+			version,
 			isSubmitted,
 			isCompleted
 		});
@@ -86,14 +94,14 @@
 		}
 	}
 	function submitChain(e) {
-		tasks = e.target.detail.chain;
+		tasks = e.detail.chain;
 		version = currentStreak ? version + 0.01 : version + 1;
 
 		let chainHistory = [];
 		if (isFirstTime) {
 			isFirstTime = false;
-		} else {
-			chainHistory = JSON.parse(localStorage.getItem(chainHistory))
+		} else if (localStorage.chainHistory) {
+			chainHistory = JSON.parse(localStorage.getItem('chainHistory'))
 		}
 		chainHistory.push({
 			version,
@@ -102,7 +110,7 @@
 		})
 		localStorage.setItem('chainHistory', JSON.stringify(chainHistory));
 
-		localStorage.setItem('tasks', tasks);
+		localStorage.setItem('tasks', JSON.stringify(tasks));
 		localStorage.setItem('currentChain', JSON.stringify({
 			startDay: day.getTime(),
 			version
@@ -137,14 +145,18 @@
       {longestStreak}
 			{day}
 			{tasksLeft}
+			on:toggleComplete={toggleComplete}
 			on:submitDay={submitDay}
+			{version}
     />
-	{:else}
+	{:else if tab === 'edit'}
 		<EditChain
 			{isFirstTime}
 			{tasks}
 			on:submitChain={submitChain}
 		/>
+	{:else}
+		<h2 class="text-4xl m-4">calendar coming soon sorry</h2>
 	{/if}
 </div>
 
@@ -160,7 +172,8 @@
 {#if isNav}
 	<nav
 		class="mobileNav z-10 fixed rounded-full bg-gray-200 border-4 border-solid border-gray-800 shadow-lg"
-		transition:fly={{ x: 200, y: 200, duration: 300 }}
+		in:scale={{ easing: bounceOut, start: 0.2 }}
+		out:scale={{ easing: quadIn, start: 0.2, duration: 200 }}
 	>
 		<button
 			type="button" value="today"

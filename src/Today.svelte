@@ -1,21 +1,18 @@
 <script>
 	import { createEventDispatcher } from 'svelte';
-  // move these back to APP? apply in and out directly to <Today />
-	import { fly } from 'svelte/transition';
-	import { flip } from 'svelte/animate';
 
 	export let tasks;
 	export let currentStreak;
 	export let longestStreak;
 	export let tasksLeft;
 	export let day;
+	export let version;
 
 	const dispatch = createEventDispatcher();
 
 	function toggleComplete(e) {
 		dispatch('toggleComplete', {
       id: e.target.value,
-      isCompleted: e.target.checked
     })
 	}
   function submitDay() {
@@ -31,19 +28,22 @@
     {#if tasksLeft}
       <p class="text-lg text-right">Tasks left: {tasksLeft}</p>
     {:else}
-      <p class="text-lg text-right font-bold">All done for the day!</p>
+      <p class="text-right font-bold">All done for the day!</p>
     {/if}
+		<p class="text-right text-lg">Version: {version}</p>
   </div>
 </div>
 
 <div
   id="scroll"
   class="border-gray-500 border-2 p-2 shadow-lg overflow-y-scroll"
-  in:fly="{{ y: 200, duration: 700, delay: 250 }}"
-  out:fly="{{ y: -200, duration: 500 }}"
 >
   <h2 class="text-2xl text-center">
-    {day.toLocaleDateString('en', { month: 'long', day: 'numeric' })}
+    {day.toLocaleDateString('en', {
+			month: 'long',
+			day: 'numeric',
+			weekday: 'long'
+		})}
   </h2>
   {#each tasks as { title, id, isCompleted }}
     <label class="py-1 px-2 shadow-sm border border-gray-400 text-xl last:mb-12">
@@ -51,7 +51,7 @@
     	<input
     		class="float-left mt-2 mr-2"
     		type="checkbox"
-        value="id"
+        value={id}
     		bind:checked={isCompleted}
     		on:change={toggleComplete}
     	>

@@ -3,7 +3,7 @@ module.exports = {
     extend: {}
   },
   variants: {
-    marginBottom: ['last']
+    margin: ['last']
   },
   plugins: []
 }
