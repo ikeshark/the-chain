@@ -57,16 +57,13 @@
 	}
 	function toggleComplete({ detail }) {
 		const task = tasks[detail.id];
-		console.log(task)
 		const { isCompleted, id, title } = task;
     const updatedTask = {
       id: detail.id,
       isCompleted: !isCompleted,
       title
     }
-		console.log('pre', tasks)
 		tasks = tasks.filter(task => task.id !== detail.id);
-		console.log('post', tasks)
 
 		tasks = [...tasks, updatedTask];
 		tasks = tasks.sort((a,b) => a.id - b.id);
@@ -126,8 +123,8 @@
 <Tailwindcss />
 
 <div class="p-2">
-	<h1 class="text-3xl mb-2 text-center">Don’t Break the Chain</h1>
-	<div class="flex items-center justify-center mb-4">
+	<h1 class="text-3xl mb-2 text-center text-blue-200">Don’t Break the Chain</h1>
+	<div class="flex items-center justify-center mb-4 text-blue-200">
 		<div class="chain"></div>
 		<div class="chain"></div>
 		<div class="chain"></div>
@@ -139,24 +136,41 @@
 
 	<!-- TODAY -->
 	{#if tab === 'today'}
-		<Today
-      {tasks}
-      {currentStreak}
-      {longestStreak}
-			{day}
-			{tasksLeft}
-			on:toggleComplete={toggleComplete}
-			on:submitDay={submitDay}
-			{version}
-    />
-	{:else if tab === 'edit'}
-		<EditChain
-			{isFirstTime}
-			{tasks}
-			on:submitChain={submitChain}
-		/>
-	{:else}
-		<h2 class="text-4xl m-4">calendar coming soon sorry</h2>
+		<div in:scale={{delay: 500}} out:scale={{delay: 0}}>
+			<Today
+				{day}
+	      {currentStreak}
+	      {longestStreak}
+				{tasks}
+				{tasksLeft}
+				{version}
+				on:toggleComplete={toggleComplete}
+	    />
+		</div>
+		<button
+		  class="fixed bottom-0 left-0 m-4 border-gray-800 border-solid bg-gray-200 py-1 px-3 text-2xl font-bold rounded-lg border-2"
+		  on:click={submitDay}
+		>
+		  Submit
+		</button>
+	{/if}
+	{#if tab === 'edit'}
+		<div in:scale={{delay: 400}} out:scale={{delay: 0}}>
+			<EditChain
+				{isFirstTime}
+				{tasks}
+				on:submitChain={submitChain}
+			/>
+		</div>
+	{/if}
+	{#if tab === 'calendar'}
+		<div in:scale={{delay: 400}} out:scale>
+			<h2 class="text-4xl m-4">calendar coming soon sorry</h2>
+		</div>
+	{:else if tab === 'profile'}
+		<div in:scale={{delay: 400}} out:scale>
+			<h2 class="text-4xl m-4">profile coming soon sorry</h2>
+		</div>
 	{/if}
 </div>
 
@@ -165,14 +179,14 @@
 	<button
 		on:click={openNav}
 		class="fixed z-20 bottom-0 right-0 m-4 border-gray-800 border-solid w-12 h-12 font-bold rounded-full leading-none border-2 {isNav ? 'bg-white text-xl' : 'text-4xl bg-gray-300' }">
-		{isNav ? 'x' : '⋮'}
+		{@html isNav ? '&times;' : '⋮'}
 	</button>
 {/if}
 
 {#if isNav}
 	<nav
-		class="mobileNav z-10 fixed rounded-full bg-gray-200 border-4 border-solid border-gray-800 shadow-lg"
-		in:scale={{ easing: bounceOut, start: 0.2 }}
+		class="mobileNav z-10 fixed rounded-full bg-blue-200 border-4 border-solid border-blue-100 shadow-lg"
+		in:scale={{ start: 0.2 }}
 		out:scale={{ easing: quadIn, start: 0.2, duration: 200 }}
 	>
 		<button
@@ -183,10 +197,17 @@
 			type="button" value="edit"
 			on:click={changeTab}
 			class="menuIcon edit">✏️</button>
-		<button class="menuIcon calendar">📅</button>
-		<button class="menuIcon profile">👤</button>
+		<button
+			type="button" value="calendar"
+			on:click={changeTab}
+			class="menuIcon calendar">📅</button>
+		<button
+			type="button" value="profile"
+			on:click={changeTab}
+			class="menuIcon profile">👤</button>
 	</nav>
 {/if}
+
 
 <style>
 	@keyframes spin {
@@ -194,22 +215,26 @@
 		to {transform: rotateX(180deg)}
 	}
 	.menuIcon {
-		font-size: 3rem;
-		border: none;
-		position: absolute;
+		font-size: 2.5rem;
+    border: 2px solid black;
+    position: absolute;
+    border-radius: 50%;
+    width: 3rem;
+    height: 3rem;
+    background-color: white;
 	}
 	#scroll { max-height: calc(100vh - 13.5rem); }
-	.home { top: 21vw; left: 12vw; }
-	.edit { top: 0; right: 54vw; }
-	.calendar { top: 9vw; right: 69vw; }
-	.profile { bottom: 50vw; left: 5vw; }
+	.home { top: 5.4rem; left: 2.1rem; }
+	.edit { top: .5rem; left: 10rem; }
+	.calendar { top: 2rem; left: 5.6rem; }
+	.profile { top: 10rem; left: 1rem; }
 	.mobileNav {
-		width: 111vw;
-		height: 111vw;
-		bottom: -50vw;
-		right: -50vw;
+		width: 25rem;
+		height: 25rem;
+		bottom: -11rem;
+		right: -11rem;
 	}
-	.chain {border: 3px solid black; width: 55px; height: 25px; border-radius: 8px;}
+	.chain {border: 3px solid currentColor; width: 55px; height: 25px; border-radius: 8px;}
 	.chain:nth-of-type(odd) {animation: spin 1 2s linear}
 	.chain:nth-of-type(even) {animation: spin 1 2s 1s linear; height: 15px; margin: 0 -14px;}
 </style>

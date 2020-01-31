@@ -36,12 +36,12 @@
 	}
 </script>
 
-<div class="border-gray-500 border-2 p-2 shadow-lg z-10 bg-white relative">
+<div class="border-blue-600 border-2 p-2 shadow-lg z-10 bg-blue-200 relative">
 	<h2 class="text-2xl text-center">{isFirstTime ? 'Create' : 'Edit'} Chain</h2>
 
-	<ul id="scroll" class="mb-4 overflow-y-scroll">
+	<ul id="scroll" class="mb-4 overflow-y-scroll text-blue-200">
 		{#each titles as title}
-			<li class="py-1 px-2 shadow-sm border border-gray-400 text-xl flex justify-between items-center last:mb-10">
+			<li class="py-1 px-2 shadow-sm border border-blue-100 bg-gray-800 text-xl flex justify-between items-center last:mb-10">
 				<span>{title}</span>
 
 				<button
@@ -54,16 +54,15 @@
 		{/each}
 	</ul>
 
-	<form on:submit|preventDefault={() => addTask}
-		class="py-2 px-4 mb-4 border border-gray-800 border-solid shadow-sm bg-gray-200">
+	<form on:submit|preventDefault={addTask}
+		class="py-2 px-4 mb-4 border-2 border-blue-100 border-solid shadow-sm bg-gray-800 text-blue-200">
 
 		<label class="mb-2">
 			<span class="text-xl">New task name</span>
-			<input class="w-full shadow-sm border-gray-700" bind:value={newTitle} />
+			<input class="w-full shadow-sm border-blue-300 bg-gray-800" bind:value={newTitle} />
 		</label>
 		<button
-			class="border-1 bg-white border-solid rounded-lg shadow-sm border-gray-800 px-3 py-1 block mx-auto text-xl"
-			on:click={addTask}
+			class="text-black border-2 bg-white border-solid rounded-lg shadow-sm border-blue-500 px-3 py-1 block mx-auto text-xl"
 		>
 			Add New Task
 		</button>
