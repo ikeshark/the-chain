@@ -14,7 +14,9 @@
       			day: 'numeric',
           })
         }
-        <span class="block text-3xl text-center -mt-1">{@html isCompleted ? '&check;' : '&times;'}</span>
+        <span class="block text-3xl text-center -mt-1">
+          {@html isCompleted ? '&check;' : '&times;'}
+        </span>
       </div>
     {/each}
   </div>

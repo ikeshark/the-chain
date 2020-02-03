@@ -63,5 +63,6 @@
 
 
 <style>
-	input {transform: scale(1.5);}
+	input { transform: scale(1.5); }
+	#scroll { max-height: calc(100vh - 13rem); }
 </style>

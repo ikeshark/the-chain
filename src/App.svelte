@@ -9,7 +9,6 @@
 	import Calendar from './Calendar.svelte';
 
 	let isNav = false;
-	let isSubmitted = false;
 	let isFirstTime = true;
 
 	let tab = '';
@@ -27,7 +26,10 @@
 			tab = 'today';
 			tasks = JSON.parse(localStorage.getItem('tasks'));
 			const currentChain = JSON.parse(localStorage.getItem('currentChain'));
-			version = parseInt(currentChain.version);
+
+			// if storing num in localStorage that is in obj (using JSON.parse / stringify)
+			// you will have a number, no need to parse
+			version = currentChain.version;
 
 			if (localStorage.history) {
 				history = JSON.parse(localStorage.getItem('history'));
@@ -36,6 +38,7 @@
 				day = new Date(day.setDate(day.getDate() + 1));
 			}
 			if (localStorage.currentStreak) {
+				// if storing a number directly in local storage it gets turned into a string
 				currentStreak = parseInt(localStorage.getItem('currentStreak'));
 			}
 			if (localStorage.longestStreak) {
@@ -52,9 +55,7 @@
 
 	$: tasksLeft = tasks.filter(task => task.isCompleted === false).length;
 	$: isToday = (new Date().getDate() === day.getDate());
-	$: {
-		if(tasks.length)localStorage.setItem('tasks', JSON.stringify(tasks))
-	};
+	$: if (tasks.length) localStorage.setItem('tasks', JSON.stringify(tasks));
 
 	function changeTab(e) {
 		tab = e.target.value;
@@ -77,15 +78,9 @@
 		isNav = !isNav;
 	}
 	function submitDay() {
-		// todo : after submit change to cal tab draw happy face
-		isSubmitted = true;
 		const isCompleted = tasksLeft ? false : true;
 		currentStreak = isCompleted ? currentStreak + 1 : 0;
-		// change from push 
-		history.push({
-			day: day.getTime(),
-			isCompleted
-		});
+		history = [...history, { day: day.getTime(), isCompleted }];
 		localStorage.setItem('history', JSON.stringify(history));
 		localStorage.setItem('currentStreak', currentStreak);
 		if (currentStreak > longestStreak) {
@@ -100,7 +95,9 @@
 	}
 	function submitChain(e) {
 		tasks = e.detail.chain;
+
 		version = currentStreak ? version + 0.01 : version + 1;
+		version = parseFloat(version.toFixed(2));
 
 		let chainHistory = [];
 		if (isFirstTime) {
@@ -108,13 +105,13 @@
 		} else if (localStorage.chainHistory) {
 			chainHistory = JSON.parse(localStorage.getItem('chainHistory'))
 		}
-		chainHistory.push({
+		chainHistory = [ ...chainHistory, {
 			version,
 			startDay: day.getTime(),
 			tasks: tasks.map(task => task.title)
-		})
-		localStorage.setItem('chainHistory', JSON.stringify(chainHistory));
+		}]
 
+		localStorage.setItem('chainHistory', JSON.stringify(chainHistory));
 		localStorage.setItem('currentChain', JSON.stringify({
 			startDay: day.getTime(),
 			version
@@ -123,8 +120,6 @@
 		tab = 'today';
 	}
 
-	let btnClass = 'px-2 py-1 border-black border-2 border-solid text-xl rounded-lg mx-2';
-	let btnActive = ' bg-gray-400 shadow-md'
 </script>
 
 <Tailwindcss />
@@ -141,7 +136,6 @@
 		<div class="chain"></div>
 	</div>
 
-	<!-- TODAY -->
 	{#if tab === 'today'}
 		<div in:scale={{delay: 500}} out:scale={{delay: 0}}>
 			<Today
@@ -174,8 +168,8 @@
 		</div>
 	{/if}
 	{#if tab === 'calendar'}
-		<div in:scale={{delay: 400}} out:scale>
-			<Calendar {history}/>
+		<div in:scale={{delay: 400}} out:scale={{delay: 0}}>
+			<Calendar {history} />
 		</div>
 	{:else if tab === 'profile'}
 		<div in:scale={{delay: 400}} out:scale>
@@ -233,18 +227,24 @@
     height: 3rem;
     background-color: white;
 	}
-	#scroll { max-height: calc(100vh - 13.5rem); }
+
 	.home { top: 5.4rem; left: 2.1rem; }
 	.edit { top: .5rem; left: 10rem; }
 	.calendar { top: 2rem; left: 5.6rem; }
 	.profile { top: 10rem; left: 1rem; }
+
 	.mobileNav {
 		width: 25rem;
 		height: 25rem;
 		bottom: -11rem;
 		right: -11rem;
 	}
-	.chain {border: 3px solid currentColor; width: 55px; height: 25px; border-radius: 8px;}
+	.chain {
+		border: 3px solid currentColor;
+		width: 55px;
+		height: 25px;
+		border-radius: 8px;
+	}
 	.chain:nth-of-type(odd) {animation: spin 1 2s linear}
 	.chain:nth-of-type(even) {animation: spin 1 2s 1s linear; height: 15px; margin: 0 -14px;}
 </style>
