@@ -6,6 +6,7 @@
 	import Tailwindcss from './Tailwindcss.svelte';
 	import EditChain from './EditChain.svelte';
 	import Today from './Today.svelte';
+	import Calendar from './Calendar.svelte';
 
 	let isNav = false;
 	let isSubmitted = false;
@@ -26,7 +27,7 @@
 			tab = 'today';
 			tasks = JSON.parse(localStorage.getItem('tasks'));
 			const currentChain = JSON.parse(localStorage.getItem('currentChain'));
-			version = currentChain.version;
+			version = parseInt(currentChain.version);
 
 			if (localStorage.history) {
 				history = JSON.parse(localStorage.getItem('history'));
@@ -35,10 +36,10 @@
 				day = new Date(day.setDate(day.getDate() + 1));
 			}
 			if (localStorage.currentStreak) {
-				currentStreak = localStorage.getItem('currentStreak');
+				currentStreak = parseInt(localStorage.getItem('currentStreak'));
 			}
 			if (localStorage.longestStreak) {
-				longestStreak = localStorage.getItem('longestStreak');
+				longestStreak = parseInt(localStorage.getItem('longestStreak'));
 			}
 
 			if (day.getTime() > new Date().getTime()) tab = 'today'
@@ -50,6 +51,10 @@
 	});
 
 	$: tasksLeft = tasks.filter(task => task.isCompleted === false).length;
+	$: isToday = (new Date().getDate() === day.getDate());
+	$: {
+		if(tasks.length)localStorage.setItem('tasks', JSON.stringify(tasks))
+	};
 
 	function changeTab(e) {
 		tab = e.target.value;
@@ -63,11 +68,10 @@
       isCompleted: !isCompleted,
       title
     }
-		tasks = tasks.filter(task => task.id !== detail.id);
+		let newTasks = tasks.filter(task => task.id !== detail.id);
+		newTasks = [...newTasks, updatedTask];
 
-		tasks = [...tasks, updatedTask];
-		tasks = tasks.sort((a,b) => a.id - b.id);
-		localStorage.setItem('tasks', JSON.stringify(tasks));
+		tasks = newTasks.sort((a,b) => a.id - b.id);
 	}
 	function openNav() {
 		isNav = !isNav;
@@ -75,12 +79,11 @@
 	function submitDay() {
 		// todo : after submit change to cal tab draw happy face
 		isSubmitted = true;
-		const isCompleted = tasksLeft ? false: true;
+		const isCompleted = tasksLeft ? false : true;
 		currentStreak = isCompleted ? currentStreak + 1 : 0;
+		// change from push 
 		history.push({
 			day: day.getTime(),
-			version,
-			isSubmitted,
 			isCompleted
 		});
 		localStorage.setItem('history', JSON.stringify(history));
@@ -89,6 +92,11 @@
 			longestStreak = currentStreak;
 			localStorage.setItem('longestStreak', longestStreak);
 		}
+		tasks = tasks.map(task => {
+			return { ...task, isCompleted: false }
+		});
+		day = new Date(day.setDate(day.getDate() + 1));
+		tab = 'calendar';
 	}
 	function submitChain(e) {
 		tasks = e.detail.chain;
@@ -107,7 +115,6 @@
 		})
 		localStorage.setItem('chainHistory', JSON.stringify(chainHistory));
 
-		localStorage.setItem('tasks', JSON.stringify(tasks));
 		localStorage.setItem('currentChain', JSON.stringify({
 			startDay: day.getTime(),
 			version
@@ -144,15 +151,18 @@
 				{tasks}
 				{tasksLeft}
 				{version}
+				{isToday}
 				on:toggleComplete={toggleComplete}
 	    />
 		</div>
+		{#if isToday}
 		<button
 		  class="fixed bottom-0 left-0 m-4 border-gray-800 border-solid bg-gray-200 py-1 px-3 text-2xl font-bold rounded-lg border-2"
 		  on:click={submitDay}
 		>
 		  Submit
 		</button>
+		{/if}
 	{/if}
 	{#if tab === 'edit'}
 		<div in:scale={{delay: 400}} out:scale={{delay: 0}}>
@@ -165,11 +175,11 @@
 	{/if}
 	{#if tab === 'calendar'}
 		<div in:scale={{delay: 400}} out:scale>
-			<h2 class="text-4xl m-4">calendar coming soon sorry</h2>
+			<Calendar {history}/>
 		</div>
 	{:else if tab === 'profile'}
 		<div in:scale={{delay: 400}} out:scale>
-			<h2 class="text-4xl m-4">profile coming soon sorry</h2>
+			<h2 class="text-4xl m-4 text-blue-200">profile coming soon sorry</h2>
 		</div>
 	{/if}
 </div>

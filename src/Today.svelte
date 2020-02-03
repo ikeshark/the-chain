@@ -7,6 +7,7 @@
 	export let tasksLeft;
 	export let day;
 	export let version;
+	export let isToday;
 
 	const dispatch = createEventDispatcher();
 
@@ -42,15 +43,20 @@
 			weekday: 'long'
 		})}
   </h2>
+
   {#each tasks as { title, id, isCompleted }}
-    <label class="py-1 px-2 mb-1 shadow-sm border border-blue-100 bg-gray-800 text-blue-200 text-xl last:mb-12">
+    <label class="py-1 px-2 mb-1 shadow-sm border border-blue-100 bg-blue-900 text-blue-200 text-xl last:mb-12">
     	{title}
-    	<input
-    		class="float-left mt-2 mr-2"
-    		type="checkbox"
-        value={id}
-    		on:change={toggleComplete}
-    	>
+
+    	{#if isToday}
+				<input
+	    		class="float-left mt-2 mr-2"
+	    		type="checkbox"
+	        value={id}
+	    		on:change={toggleComplete}
+					checked={isCompleted}
+	    	>
+			{/if}
     </label>
   {/each}
 </div>

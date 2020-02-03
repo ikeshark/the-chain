@@ -19,7 +19,6 @@
 		const scrollWrapper = document.querySelector('#scroll')
 
 		if (scrollWrapper.scrollHeight > scrollWrapper.clientHeight) {
-			console.log('before', scrollWrapper.scrollTop, scrollWrapper.scrollHeight)
 			const height = scrollWrapper.scrollHeight;
 			scrollWrapper.scrollTo({
 			  top: height,
@@ -41,7 +40,7 @@
 
 	<ul id="scroll" class="mb-4 overflow-y-scroll text-blue-200">
 		{#each titles as title}
-			<li class="py-1 px-2 shadow-sm border border-blue-100 bg-gray-800 text-xl flex justify-between items-center last:mb-10">
+			<li class="py-1 px-2 shadow-sm border border-blue-100 bg-blue-900 text-xl flex justify-between items-center last:mb-10">
 				<span>{title}</span>
 
 				<button
