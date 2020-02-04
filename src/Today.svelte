@@ -8,6 +8,7 @@
 	export let day;
 	export let version;
 	export let isToday;
+	export let theme;
 
 	const dispatch = createEventDispatcher();
 
@@ -17,7 +18,7 @@
     })
 	}
 </script>
-<div class="flex text-blue-200">
+<div class={`flex ${theme.text}`}>
   <div class="w-1/2">
     <p>Current streak: {currentStreak}</p>
     <p class="mb-4">Longest streak: {longestStreak}</p>
@@ -45,7 +46,12 @@
   </h2>
 
   {#each tasks as { title, id, isCompleted }}
-    <label class="py-1 px-2 mb-1 shadow-sm border border-blue-100 bg-blue-900 text-blue-200 text-xl last:mb-12">
+    <label class={`
+			py-1 px-2 mb-1 shadow-sm
+			border border-blue-100 bg-blue-900
+			${theme.text} 
+			text-xl last:mb-12
+			`}>
     	{title}
 
     	{#if isToday}

@@ -6,6 +6,7 @@
 	import Tailwindcss from './Tailwindcss.svelte';
 	import EditChain from './EditChain.svelte';
 	import Today from './Today.svelte';
+	import User from './User.svelte';
 	import Calendar from './Calendar.svelte';
 
 	let isNav = false;
@@ -19,6 +20,21 @@
 	let currentStreak = 0;
 	let longestStreak = 0;
 	let version = 0;
+
+	const themes = {
+		day: {
+			bg: '',
+			text: 'text-red-200',
+			accent: '',
+		},
+		night: {
+			bg: 'bg-gray-800',
+			text: 'text-blue-200',
+			accent: '',
+		},
+	}
+
+	let theme = themes.night;
 
 	onMount(() => {
 		if (localStorage.tasks) {
@@ -120,13 +136,20 @@
 		tab = 'today';
 	}
 
+	function changeTheme(e) {
+		theme = themes[e.detail.newTheme];
+	}
+	function setTheme(e) {
+		localStorage.setItem('theme', e.detail.newTheme);
+	}
+
 </script>
 
 <Tailwindcss />
 
 <div class="p-2">
-	<h1 class="text-3xl mb-2 text-center text-blue-200">Don’t Break the Chain</h1>
-	<div class="flex items-center justify-center mb-4 text-blue-200">
+	<h1 class={`text-3xl mb-2 text-center ${theme.text}`}>Don’t Break the Chain</h1>
+	<div class={`flex items-center justify-center mb-4 ${theme.text}`}>
 		<div class="chain"></div>
 		<div class="chain"></div>
 		<div class="chain"></div>
@@ -146,6 +169,7 @@
 				{tasksLeft}
 				{version}
 				{isToday}
+				{theme}
 				on:toggleComplete={toggleComplete}
 	    />
 		</div>
@@ -173,7 +197,7 @@
 		</div>
 	{:else if tab === 'profile'}
 		<div in:scale={{delay: 400}} out:scale>
-			<h2 class="text-4xl m-4 text-blue-200">profile coming soon sorry</h2>
+			<User {theme} on:changeTheme={changeTheme} />
 		</div>
 	{/if}
 </div>
