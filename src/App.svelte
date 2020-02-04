@@ -23,23 +23,30 @@
 
 	const themes = {
 		day: {
-			bg: '',
-			text: 'text-red-200',
-			accent: '',
+			bg: 'bg-orange-200',
+			border: 'border-red-900',
+			text: 'text-red-800',
+			invertBg: 'bg-red-800',
+			invertBorder: 'border-orange-500',
+			invertText: 'text-orange-200',
 		},
 		night: {
 			bg: 'bg-gray-800',
+			border: 'border-blue-100',
 			text: 'text-blue-200',
-			accent: '',
+			invertBg: 'bg-blue-200',
+			invertBorder: 'border-blue-600',
+			invertText: 'text-gray-800',
 		},
 	}
-
-	let theme = themes.night;
+	// optional night invertBorder = border-gray-500
+	// optional night bg = bg-blue-900
+	let theme = themes.day;
 
 	onMount(() => {
 		if (localStorage.tasks) {
 			isFirstTime = false;
-			tab = 'today';
+			tab = 'profile';
 			tasks = JSON.parse(localStorage.getItem('tasks'));
 			const currentChain = JSON.parse(localStorage.getItem('currentChain'));
 
@@ -60,8 +67,6 @@
 			if (localStorage.longestStreak) {
 				longestStreak = parseInt(localStorage.getItem('longestStreak'));
 			}
-
-			if (day.getTime() > new Date().getTime()) tab = 'today'
 
 		} else {
 			tab = 'edit';
@@ -147,7 +152,7 @@
 
 <Tailwindcss />
 
-<div class="p-2">
+<div class={`p-2 h-screen mx-auto relative overflow-hidden ${theme.bg}`}>
 	<h1 class={`text-3xl mb-2 text-center ${theme.text}`}>Don’t Break the Chain</h1>
 	<div class={`flex items-center justify-center mb-4 ${theme.text}`}>
 		<div class="chain"></div>
@@ -175,7 +180,7 @@
 		</div>
 		{#if isToday}
 		<button
-		  class="fixed bottom-0 left-0 m-4 border-gray-800 border-solid bg-gray-200 py-1 px-3 text-2xl font-bold rounded-lg border-2"
+		  class="absolute bottom-0 left-0 m-4 border-gray-800 border-solid bg-gray-200 py-1 px-3 text-2xl font-bold rounded-lg border-2"
 		  on:click={submitDay}
 		>
 		  Submit
@@ -185,6 +190,7 @@
 	{#if tab === 'edit'}
 		<div in:scale={{delay: 400}} out:scale={{delay: 0}}>
 			<EditChain
+				{theme}
 				{isFirstTime}
 				{tasks}
 				on:submitChain={submitChain}
@@ -193,11 +199,11 @@
 	{/if}
 	{#if tab === 'calendar'}
 		<div in:scale={{delay: 400}} out:scale={{delay: 0}}>
-			<Calendar {history} />
+			<Calendar {theme}  {history} />
 		</div>
 	{:else if tab === 'profile'}
 		<div in:scale={{delay: 400}} out:scale>
-			<User {theme} on:changeTheme={changeTheme} />
+			<User {themes} {theme} on:changeTheme={changeTheme} />
 		</div>
 	{/if}
 </div>
@@ -213,7 +219,7 @@
 
 {#if isNav}
 	<nav
-		class="mobileNav z-10 fixed rounded-full bg-blue-200 border-4 border-solid border-blue-100 shadow-lg"
+		class={`mobileNav z-10 fixed rounded-full ${theme.invertBg} border-4 border-solid ${theme.border} shadow-lg`}
 		in:scale={{ start: 0.2 }}
 		out:scale={{ easing: quadIn, start: 0.2, duration: 200 }}
 	>

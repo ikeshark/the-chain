@@ -1,5 +1,6 @@
 <script>
   export let history;
+  export let theme;
 </script>
 
 <div class="text-blue-200">

@@ -4,6 +4,7 @@
 
 	export let tasks;
 	export let isFirstTime;
+	export let theme;
 
 	let titles = tasks.map(task => task.title);
 	let newTitle = '';
@@ -35,12 +36,15 @@
 	}
 </script>
 
-<div class="border-blue-600 border-2 p-2 shadow-lg z-10 bg-blue-200 relative">
-	<h2 class="text-2xl text-center">{isFirstTime ? 'Create' : 'Edit'} Chain</h2>
+<div class={`${theme.invertBorder} border-2 p-2 shadow-lg z-10 ${theme.invertBg} relative`}>
+	<h2 class={`${theme.invertText} text-2xl text-center`}>{isFirstTime ? 'Create' : 'Edit'} Chain</h2>
 
-	<ul id="scroll" class="mb-4 overflow-y-scroll text-blue-200">
+	<ul id="scroll" class={`${theme.text} mb-4 overflow-y-scroll`}>
 		{#each titles as title}
-			<li class="py-1 px-2 shadow-sm border border-blue-100 bg-blue-900 text-xl flex justify-between items-center last:mb-10">
+			<li class={
+				`flex justify-between items-center last:mb-10 py-1 px-2
+				shadow-sm border ${theme.border} ${theme.bg} text-xl`
+			}>
 				<span>{title}</span>
 
 				<button
@@ -54,11 +58,14 @@
 	</ul>
 
 	<form on:submit|preventDefault={addTask}
-		class="py-2 px-4 mb-4 border-2 border-blue-100 border-solid shadow-sm bg-gray-800 text-blue-200">
+		class={
+			`py-2 px-4 mb-4
+			border-2 border-solid ${theme.text} ${theme.border} ${theme.bg} shadow-sm`
+		}>
 
 		<label class="mb-2">
 			<span class="text-xl">New task name</span>
-			<input class="w-full shadow-sm border-blue-300 bg-gray-800" bind:value={newTitle} />
+			<input class={`w-full shadow-sm border-blue-300 ${theme.bg}`} bind:value={newTitle} />
 		</label>
 		<button
 			class="text-black border-2 bg-white border-solid rounded-lg shadow-sm border-blue-500 px-3 py-1 block mx-auto text-xl"

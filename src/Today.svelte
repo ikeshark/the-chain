@@ -35,9 +35,11 @@
 
 <div
   id="scroll"
-  class="border-gray-500 border-2 p-2 shadow-lg overflow-y-scroll bg-blue-200"
->
-  <h2 class="text-2xl text-center">
+  class={`
+		 ${theme.invertBorder} border-2 p-2 shadow-lg overflow-y-scroll
+		${theme.invertBg}
+`}>
+  <h2 class={`text-2xl text-center mb-2 ${theme.invertText}`}>
     {day.toLocaleDateString('en', {
 			month: 'long',
 			day: 'numeric',
@@ -48,10 +50,10 @@
   {#each tasks as { title, id, isCompleted }}
     <label class={`
 			py-1 px-2 mb-1 shadow-sm
-			border border-blue-100 bg-blue-900
-			${theme.text} 
+			border ${theme.border}
+			${theme.text} ${theme.bg}
 			text-xl last:mb-12
-			`}>
+		`}>
     	{title}
 
     	{#if isToday}
