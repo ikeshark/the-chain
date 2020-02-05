@@ -61,7 +61,7 @@
 	}
 	// optional night invertBorder = border-gray-500
 	// optional night bg = bg-blue-900
-	let theme = themes.indigo;
+	let theme = themes.night;
 
 	onMount(() => {
 		if (localStorage.tasks) {
@@ -86,6 +86,9 @@
 			}
 			if (localStorage.longestStreak) {
 				longestStreak = parseInt(localStorage.getItem('longestStreak'));
+			}
+			if (localStorage.theme) {
+				theme = themes[localStorage.getItem('theme')]
 			}
 
 		} else {
@@ -223,7 +226,12 @@
 		</div>
 	{:else if tab === 'profile'}
 		<div in:scale={{delay: 400}} out:scale>
-			<User {themes} {theme} on:changeTheme={changeTheme} />
+			<User
+				{themes}
+				{theme}
+				on:setTheme={setTheme}
+				on:changeTheme={changeTheme}
+			/>
 		</div>
 	{/if}
 </div>

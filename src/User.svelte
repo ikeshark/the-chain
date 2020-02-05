@@ -6,10 +6,12 @@
   export let themes;
 
   function changeTheme(e) {
-    dispatch('changeTheme', { newTheme: e.target.value })
+    dispatch('changeTheme', { newTheme: e.target.value });
   }
   function setTheme(e) {
-    dispatch('changeTheme', { newTheme: e.theme.value })
+    // need to have some sort of confirm that preference was set
+    var data = new FormData(e.target);
+    dispatch('setTheme', { newTheme: data.get('theme') });
   }
 </script>
 
