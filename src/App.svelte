@@ -29,6 +29,7 @@
 			invertBg: 'bg-red-800',
 			invertBorder: 'border-orange-500',
 			invertText: 'text-orange-200',
+			name: 'day',
 		},
 		night: {
 			bg: 'bg-gray-800',
@@ -37,11 +38,30 @@
 			invertBg: 'bg-blue-200',
 			invertBorder: 'border-blue-600',
 			invertText: 'text-gray-800',
+			name:'night'
+		},
+		green: {
+			bg: 'bg-green-800',
+			border: 'border-green-100',
+			text: 'text-yellow-300',
+			invertBg: 'bg-yellow-300',
+			invertBorder: 'border-green-600',
+			invertText: 'text-green-800',
+			name:'green'
+		},
+		indigo: {
+			bg: 'bg-indigo-800',
+			border: 'border-indigo-100',
+			text: 'text-purple-300',
+			invertBg: 'bg-purple-300',
+			invertBorder: 'border-indigo-600',
+			invertText: 'text-indigo-800',
+			name:'indigo'
 		},
 	}
 	// optional night invertBorder = border-gray-500
 	// optional night bg = bg-blue-900
-	let theme = themes.day;
+	let theme = themes.indigo;
 
 	onMount(() => {
 		if (localStorage.tasks) {
@@ -75,7 +95,7 @@
 	});
 
 	$: tasksLeft = tasks.filter(task => task.isCompleted === false).length;
-	$: isToday = (new Date().getDate() === day.getDate());
+	$: isFuture = (new Date().getDate() < day.getDate());
 	$: if (tasks.length) localStorage.setItem('tasks', JSON.stringify(tasks));
 
 	function changeTab(e) {
@@ -173,12 +193,12 @@
 				{tasks}
 				{tasksLeft}
 				{version}
-				{isToday}
+				{isFuture}
 				{theme}
 				on:toggleComplete={toggleComplete}
 	    />
 		</div>
-		{#if isToday}
+		{#if !isFuture}
 		<button
 		  class="absolute bottom-0 left-0 m-4 border-gray-800 border-solid bg-gray-200 py-1 px-3 text-2xl font-bold rounded-lg border-2"
 		  on:click={submitDay}

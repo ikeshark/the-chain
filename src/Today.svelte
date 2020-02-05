@@ -7,7 +7,7 @@
 	export let tasksLeft;
 	export let day;
 	export let version;
-	export let isToday;
+	export let isFuture;
 	export let theme;
 
 	const dispatch = createEventDispatcher();
@@ -56,7 +56,7 @@
 		`}>
     	{title}
 
-    	{#if isToday}
+    	{#if !isFuture}
 				<input
 	    		class="float-left mt-2 mr-2"
 	    		type="checkbox"
