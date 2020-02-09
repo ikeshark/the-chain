@@ -21,48 +21,29 @@
     class={`${theme.text} ${theme.bg} p-2`}
     on:submit|preventDefault={setTheme}
   >
-    <label class="flex items-center mb-1 py-2 px-4 {(theme.name === 'day') && "border-black border-2 border-solid"}">
-      <span class="mr-auto text-xl text-center font-bold">Day</span>
-      <input
-        name="theme"
-        class="opacity-0"
-        type="radio" value="day"
-        on:change={changeTheme}>
-      <span class={`${themes.day.bg} w-10 h-10 inline-block border border-solid border-black`}></span>
-      <span class={`${themes.day.invertBg} w-10 h-10 inline-block border border-solid border-black`}></span>
-    </label>
-    <label class="flex items-center mb-1 py-2 px-4 {(theme.name === 'night') && "border-black border-2 border-solid"}">
-      <span class="mr-auto text-xl text-center font-bold">Night</span>
-      <input
-        name="theme"
-        class="opacity-0"
-        type="radio" value="night"
-        on:change={changeTheme}>
-        <span class={`${themes.night.bg} w-10 h-10 inline-block border border-solid border-black`}></span>
-        <span class={`${themes.night.invertBg} w-10 h-10 inline-block border border-solid border-black`}></span>
-    </label>
-    <label class="flex items-center mb-1 py-2 px-4 {(theme.name === 'green') && "border-black border-2 border-solid"}">
-      <span class="mr-auto text-xl text-center font-bold">Green</span>
-      <input
-        name="theme"
-        class="opacity-0"
-        type="radio" value="green"
-        on:change={changeTheme}>
-      <span class={`${themes.green.bg} w-10 h-10 inline-block border border-solid border-black`}></span>
-      <span class={`${themes.green.invertBg} w-10 h-10 inline-block border border-solid border-black`}></span>
-    </label>
-    <label class="flex items-center mb-1 py-2 px-4 {(theme.name === 'indigo') && "border-black border-2 border-solid"}">
-      <span class="mr-auto text-xl text-center font-bold">Indigo</span>
-      <input
-        name="theme"
-        class="opacity-0"
-        type="radio" value="indigo"
-        on:change={changeTheme}>
-      <span class={`${themes.indigo.bg} w-10 h-10 inline-block border border-solid border-black`}></span>
-      <span class={`${themes.indigo.invertBg} w-10 h-10 inline-block border border-solid border-black`}></span>
-    </label>
+    {#each Object.values(themes) as { name, bg, border, invertBg }}
+      <label class="flex items-center mb-1 py-2 px-4 {(theme.name === name) && `${theme.border} border-2 border-solid`}">
+        <span class="mr-auto text-xl text-center font-bold">{name}</span>
+        <input
+          class="opacity-0"
+          name="theme"
+          type="radio"
+          value={name}
+          on:change={changeTheme}>
+        <span class={`${bg} w-10 h-10 inline-block border border-solid border-black`}></span>
+        <span class={`${invertBg} w-10 h-10 inline-block border border-solid border-black`}></span>
+      </label>
+    {/each}
+
     <button
-      class="text-xl mx-auto my-4 block font-bold p-4 border-double border-8 border-black"
-      type="submit">Set preference</button>
+      class={`
+        block mx-auto my-4 p-4
+        text-xl font-bold
+        border-double border-8 ${theme.border}
+      `}
+      type="submit"
+    >
+      Set preference
+    </button>
   </form>
 </div>

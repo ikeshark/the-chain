@@ -33,28 +33,28 @@
 		},
 		night: {
 			bg: 'bg-gray-800',
-			border: 'border-blue-100',
+			border: 'border-blue-200',
 			text: 'text-blue-200',
 			invertBg: 'bg-blue-200',
-			invertBorder: 'border-blue-600',
+			invertBorder: 'border-blue-700',
 			invertText: 'text-gray-800',
 			name:'night'
 		},
 		green: {
 			bg: 'bg-green-800',
-			border: 'border-green-100',
+			border: 'border-yellow-400',
 			text: 'text-yellow-300',
 			invertBg: 'bg-yellow-300',
-			invertBorder: 'border-green-600',
+			invertBorder: 'border-green-700',
 			invertText: 'text-green-800',
 			name:'green'
 		},
 		indigo: {
 			bg: 'bg-indigo-800',
-			border: 'border-indigo-100',
+			border: 'border-indigo-200',
 			text: 'text-purple-300',
 			invertBg: 'bg-purple-300',
-			invertBorder: 'border-indigo-600',
+			invertBorder: 'border-indigo-700',
 			invertText: 'text-indigo-800',
 			name:'indigo'
 		},
@@ -66,7 +66,7 @@
 	onMount(() => {
 		if (localStorage.tasks) {
 			isFirstTime = false;
-			tab = 'profile';
+			tab = 'calendar';
 			tasks = JSON.parse(localStorage.getItem('tasks'));
 			const currentChain = JSON.parse(localStorage.getItem('currentChain'));
 
@@ -168,6 +168,7 @@
 		theme = themes[e.detail.newTheme];
 	}
 	function setTheme(e) {
+		// should i see if theme has changed?
 		localStorage.setItem('theme', e.detail.newTheme);
 	}
 
@@ -247,7 +248,7 @@
 
 {#if isNav}
 	<nav
-		class={`mobileNav z-10 fixed rounded-full ${theme.invertBg} border-4 border-solid ${theme.border} shadow-lg`}
+		class={`mobileNav z-10 fixed rounded-full ${theme.invertBg} border-4 border-solid ${theme.invertBorder} shadow-lg`}
 		in:scale={{ start: 0.2 }}
 		out:scale={{ easing: quadIn, start: 0.2, duration: 200 }}
 	>
