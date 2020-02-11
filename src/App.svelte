@@ -8,6 +8,7 @@
 	import Today from './Today.svelte';
 	import User from './User.svelte';
 	import Calendar from './Calendar.svelte';
+	import Toast from './Toast.svelte'
 
 	let isNav = false;
 	let isFirstTime = true;
@@ -17,9 +18,11 @@
 	let day = new Date();
 	let tasks = [];
 	let history = [];
+	let toasts = [{id: 999, message: 'this is a toast test'}, {id: 998, message: 'this is a second toast'}];
 	let currentStreak = 0;
 	let longestStreak = 0;
 	let version = 0;
+	let toastId = 0;
 
 	const themes = {
 		day: {
@@ -171,6 +174,15 @@
 		// should i see if theme has changed?
 		localStorage.setItem('theme', e.detail.newTheme);
 	}
+	function createToast(e) {
+		toasts = [...toasts, { id: toastId, message: e.detail.message }];
+		toastId++;
+	}
+	function deleteToast(e) {
+		console.log(e.detail.id)
+		toasts = toasts.filter(toast => toast.id !== e.detail.id);
+	}
+
 
 </script>
 
@@ -244,6 +256,14 @@
 		class="fixed z-20 bottom-0 right-0 m-4 border-gray-800 border-solid w-12 h-12 font-bold rounded-full leading-none border-2 {isNav ? 'bg-white text-xl' : 'text-4xl bg-gray-300' }">
 		{@html isNav ? '&times;' : '⋮'}
 	</button>
+{/if}
+
+{#if toasts.length}
+	<div class="fixed top-0 left-0 mt-2 w-full">
+		{#each toasts as { id, message }}
+			<Toast {id} {message} {theme} on:deleteToast={deleteToast} />
+		{/each}
+	</div>
 {/if}
 
 {#if isNav}
