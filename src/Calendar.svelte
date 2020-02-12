@@ -1,13 +1,18 @@
 <script>
   export let theme;
-  export let history;
+
+  let history = [];
+  let chainHistory = [];
   let dataObj;
+
+  if (localStorage.history) history = JSON.parse(localStorage.getItem('history'));
+  if (localStorage.chainHistory) chainHistory = JSON.parse(localStorage.getItem('chainHistory'));
+
   const numRecDays = history.length;
   const weekdays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
   if (history.length) {
     history.sort((a, b) => a.day - b.day);
-
 
     const firstEpoch = history[0].day;
     const lastEpoch =  history[history.length -1].day;
@@ -102,8 +107,8 @@
       }
     });
 
-    console.log(dataObj);
-  }
+  } // END if (history.length)
+
   function isCompletedStyles(isCompleted) {
     if (isCompleted === true) return 'bg-green-500'
     else if (isCompleted === false) return 'bg-red-600'
@@ -118,14 +123,13 @@
 
 <div class={`${theme.text} text-center`}>
   <div class="flex justify-center items-center">
-    <h2 class="text-4xl mr-12">Your History</h2>
-    <p class="rounded-full shadow w-16 h-16 {theme.border} border-solid border-2 text-sm">
+    <h2 class="text-4xl mr-8">Your History</h2>
+    <p class="rounded-full shadow w-16 h-16 {theme.border} border-solid border-2 border-b text-sm">
       <span class="text-3xl block -mb-3">{numRecDays}</span>
       days
     </p>
   </div>
   {#if history.length}
-
     <div id="scroll" class="rounded-lg overflow-y-scroll">
       {#each Object.entries(dataObj).sort((a, b) => b[0] - a[0]) as year}
         {#if Object.entries(dataObj).length > 1}<h3>{year[0]}</h3>{/if}
@@ -157,7 +161,6 @@
     <h2 class="{theme.text} text-xl">YOU AINT GOT NO HISTORY</h2>
   {/if}
 </div>
-
 
 <style>
   #scroll { height: 68vh;}

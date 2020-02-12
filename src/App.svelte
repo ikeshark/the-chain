@@ -17,7 +17,6 @@
 
 	let day = new Date();
 	let tasks = [];
-	let history = [];
 	let toasts = [];
 	let currentStreak = 0;
 	let longestStreak = 0;
@@ -74,11 +73,11 @@
 			const currentChain = JSON.parse(localStorage.getItem('currentChain'));
 
 			// if storing num in localStorage that is in obj (using JSON.parse / stringify)
-			// you will have a number, no need to parse
+			//// you will have a number, no need to parse
 			version = currentChain.version;
 
 			if (localStorage.history) {
-				history = JSON.parse(localStorage.getItem('history'));
+				const history = JSON.parse(localStorage.getItem('history'));
 				const epoch = history[history.length - 1].day;
 				day = new Date(epoch);
 				day = new Date(day.setDate(day.getDate() + 1));
@@ -137,6 +136,8 @@
 	function submitDay() {
 		const isCompleted = tasksLeft ? false : true;
 		currentStreak = isCompleted ? currentStreak + 1 : 0;
+		let history = [];
+		if (localStorage.history) history = JSON.parse(localStorage.getItem('history'));
 		history = [...history, { day: day.getTime(), isCompleted }];
 		localStorage.setItem('history', JSON.stringify(history));
 		localStorage.setItem('currentStreak', currentStreak);
@@ -162,6 +163,8 @@
 		} else if (localStorage.chainHistory) {
 			chainHistory = JSON.parse(localStorage.getItem('chainHistory'))
 		}
+		// maybe should only record to chainHistory if it is a new day
+		//// ditto with version number 
 		chainHistory = [ ...chainHistory, {
 			version,
 			startDay: day.getTime(),
@@ -247,7 +250,7 @@
 	{/if}
 	{#if tab === 'calendar'}
 		<div in:scale={{delay: 400}} out:scale={{delay: 0}}>
-			<Calendar {theme}  {history} />
+			<Calendar {theme} />
 		</div>
 	{:else if tab === 'profile'}
 		<div in:scale={{delay: 400}} out:scale>
@@ -302,7 +305,6 @@
 			class="menuIcon profile">👤</button>
 	</nav>
 {/if}
-
 
 <style>
 	@keyframes spin {
