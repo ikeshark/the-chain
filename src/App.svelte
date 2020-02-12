@@ -18,7 +18,7 @@
 	let day = new Date();
 	let tasks = [];
 	let history = [];
-	let toasts = [{id: 999, message: 'this is a toast test'}, {id: 998, message: 'this is a second toast'}];
+	let toasts = [];
 	let currentStreak = 0;
 	let longestStreak = 0;
 	let version = 0;
@@ -82,6 +82,16 @@
 				const epoch = history[history.length - 1].day;
 				day = new Date(epoch);
 				day = new Date(day.setDate(day.getDate() + 1));
+				// if (new Date().getDate() < day.getDate()) {
+				// 	createToast({ detail: { message:
+				// 		'You are in the future'
+				// 	} });
+				// } else
+				 if (new Date().getDate() > day.getDate()) {
+					createToast({ detail: { message:
+						'You are in the past'
+					} });
+				}
 			}
 			if (localStorage.currentStreak) {
 				// if storing a number directly in local storage it gets turned into a string
@@ -173,13 +183,15 @@
 	function setTheme(e) {
 		// should i see if theme has changed?
 		localStorage.setItem('theme', e.detail.newTheme);
+		createToast({ detail: { message:
+			'New Theme Successfully Saved'
+		} });
 	}
 	function createToast(e) {
 		toasts = [...toasts, { id: toastId, message: e.detail.message }];
 		toastId++;
 	}
 	function deleteToast(e) {
-		console.log(e.detail.id)
 		toasts = toasts.filter(toast => toast.id !== e.detail.id);
 	}
 

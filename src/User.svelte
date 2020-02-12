@@ -12,6 +12,7 @@
     // need to have some sort of confirm that preference was set
     var data = new FormData(e.target);
     dispatch('setTheme', { newTheme: data.get('theme') });
+    dispatch('createToast', { message: 'New theme saved' });
   }
 </script>
 

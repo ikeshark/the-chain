@@ -6,10 +6,14 @@
   export let message;
   export let theme;
 
-  function deleteToast(e) {
-    const id = e.target.id || e.target.parentNode.id;
-    dispatch('deleteToast', { id: parseInt(id) })
+  const to = setTimeout(deleteToast, 5000);
+
+  function deleteToast() {
+    if (to) clearTimeout(to);
+    dispatch('deleteToast', { id })
   }
+
+
 </script>
 
 <div
