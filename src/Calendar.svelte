@@ -5,8 +5,17 @@
   let chainHistory = [];
   let dataObj;
 
-  if (localStorage.history) history = JSON.parse(localStorage.getItem('history'));
   if (localStorage.chainHistory) chainHistory = JSON.parse(localStorage.getItem('chainHistory'));
+  chainHistory = chainHistory.map(item => {
+    const date = new Date(item.startDay);
+    const weekday = date.toLocaleDateString('en', {
+      weekday: 'short'
+    });
+    return { weekday, date: date.getDate() }
+  });
+
+  if (localStorage.history) history = JSON.parse(localStorage.getItem('history'));
+
 
   const numRecDays = history.length;
   const weekdays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
@@ -98,7 +107,8 @@
       const value = {
         isCompleted: item.isCompleted,
         day: date.getDate(),
-        weekday
+        weekday,
+        epoch: item.day,
       };
       if (dataObj[year][month]) {
         dataObj[year][month] = [ ...dataObj[year][month], value ];
@@ -144,6 +154,7 @@
               {/each}
               {#each month[1].sort((a, b) => a.day - b.day) as dayObj}
                 <div
+                  data-id={dayObj.epoch}
                   style="grid-column: {dayObj.weekday}-start / {dayObj.weekday}-end"
                   class="text-center text-lg text-black font-bold rounded-sm {isCompletedStyles(dayObj.isCompleted)}">
                   {dayObj.day}
@@ -152,7 +163,7 @@
                   </span>
                 </div>
               {/each}
-            </div>
+            </div> <!-- end grid -->
           </div>
         {/each} <!-- end month -->
       {/each} <!-- end year -->
@@ -167,6 +178,7 @@
   .monthGrid {
     display: grid;
     grid-gap: 3px;
+    /* i need to change this for i18n purposes */
     grid-template-columns:
       [Mon-start] 1fr [Mon-end Tue-start] 1fr [Tue-end Wed-start] 1fr [Wed-end Thu-start] 1fr [Thu-end Fri-start] 1fr [Fri-end Sat-start] 1fr [Sat-end Sun-start] 1fr [Sun-end];
   }
