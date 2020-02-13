@@ -15,7 +15,7 @@
 
 	let tab = '';
 
-	let day = new Date();
+	let day = formatDate(new Date().getTime());
 	let tasks = [];
 	let toasts = [];
 	let currentStreak = 0;
@@ -70,23 +70,18 @@
 			isFirstTime = false;
 			tab = 'calendar';
 			tasks = JSON.parse(localStorage.getItem('tasks'));
-			const currentChain = JSON.parse(localStorage.getItem('currentChain'));
-
+			const chainHistory = JSON.parse(localStorage.getItem('chainHistory'));
 			// if storing num in localStorage that is in obj (using JSON.parse / stringify)
 			//// you will have a number, no need to parse
-			version = currentChain.version;
+			version = chainHistory[chainHistory.length - 1].version;
 
 			if (localStorage.history) {
 				const history = JSON.parse(localStorage.getItem('history'));
 				const epoch = history[history.length - 1].day;
 				day = new Date(epoch);
-				day = new Date(day.setDate(day.getDate() + 1));
-				// if (new Date().getDate() < day.getDate()) {
-				// 	createToast({ detail: { message:
-				// 		'You are in the future'
-				// 	} });
-				// } else
-				 if (new Date().getDate() > day.getDate()) {
+				day = formatDate(day.setDate(day.getDate() + 1));
+
+				if (new Date().getDate() > day.getDate()) {
 					createToast({ detail: { message:
 						'You are in the past'
 					} });
@@ -148,14 +143,11 @@
 		tasks = tasks.map(task => {
 			return { ...task, isCompleted: false }
 		});
-		day = new Date(day.setDate(day.getDate() + 1));
+		day = formatDate(day.setDate(day.getDate() + 1));
 		tab = 'calendar';
 	}
 	function submitChain(e) {
 		tasks = e.detail.chain;
-
-		version = currentStreak ? version + 0.01 : version + 1;
-		version = parseFloat(version.toFixed(2));
 
 		let chainHistory = [];
 		if (isFirstTime) {
@@ -163,20 +155,24 @@
 		} else if (localStorage.chainHistory) {
 			chainHistory = JSON.parse(localStorage.getItem('chainHistory'))
 		}
-		// maybe should only record to chainHistory if it is a new day
-		//// ditto with version number 
-		chainHistory = [ ...chainHistory, {
-			version,
-			startDay: day.getTime(),
-			tasks: tasks.map(task => task.title)
-		}]
+		// if a chain is updated twice in a day
+		//// don't update version, overwrite tasks
+		if (chainHistory[chainHistory.length - 1].startDay === day.getTime()) {
+			const historyItem = chainHistory[chainHistory.length - 1];
+			historyItem.tasks = tasks.map(task => task.title);
+			chainHistory = chainHistory.filter(item => item.startDay !== day.getTime());
+			chainHistory = [...chainHistory, historyItem];
+		} else {
+			version = currentStreak ? version + 0.01 : version + 1;
+			version = parseFloat(version.toFixed(2));
+			chainHistory = [...chainHistory, {
+				version,
+				startDay: day.getTime(),
+				tasks: tasks.map(task => task.title)
+			}]
+		}
 
 		localStorage.setItem('chainHistory', JSON.stringify(chainHistory));
-		localStorage.setItem('currentChain', JSON.stringify({
-			startDay: day.getTime(),
-			version
-		}))
-
 		tab = 'today';
 	}
 
@@ -196,6 +192,11 @@
 	}
 	function deleteToast(e) {
 		toasts = toasts.filter(toast => toast.id !== e.detail.id);
+	}
+
+	function formatDate(epoch) {
+		const date = new Date(epoch);
+		return new Date(date.setHours(0, 0, 0, 0));
 	}
 
 

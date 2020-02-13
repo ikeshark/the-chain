@@ -4,18 +4,11 @@
   let history = [];
   let chainHistory = [];
   let dataObj;
+  let showModal = false;
+  let detail = null;
 
   if (localStorage.chainHistory) chainHistory = JSON.parse(localStorage.getItem('chainHistory'));
-  chainHistory = chainHistory.map(item => {
-    const date = new Date(item.startDay);
-    const weekday = date.toLocaleDateString('en', {
-      weekday: 'short'
-    });
-    return { weekday, date: date.getDate() }
-  });
-
   if (localStorage.history) history = JSON.parse(localStorage.getItem('history'));
-
 
   const numRecDays = history.length;
   const weekdays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
@@ -129,6 +122,13 @@
     else if (isCompleted === false) return '&times;'
     else if (isCompleted === null) return '&nbsp;'
   }
+  function showDetail({ target }) {
+    const id = parseInt(target.id);
+    detail = chainHistory.filter(item => item.startDay === id)[0];
+  }
+  function closeModal({ target }) {
+    if (target.id === 'modal') detail = null;
+  }
 </script>
 
 <div class={`${theme.text} text-center`}>
@@ -153,15 +153,29 @@
                 </div>
               {/each}
               {#each month[1].sort((a, b) => a.day - b.day) as dayObj}
-                <div
-                  data-id={dayObj.epoch}
-                  style="grid-column: {dayObj.weekday}-start / {dayObj.weekday}-end"
-                  class="text-center text-lg text-black font-bold rounded-sm {isCompletedStyles(dayObj.isCompleted)}">
-                  {dayObj.day}
-                  <span class="block text-3xl -mt-2">
-                    {@html isCompletedContent(dayObj.isCompleted)}
-                  </span>
-                </div>
+                {#if chainHistory.map(x => x.startDay).indexOf(dayObj.epoch) !== -1}
+                  <button
+                    id={dayObj.epoch}
+                    type="button"
+                    on:click={showDetail}
+                    style="grid-column: {dayObj.weekday}-start / {dayObj.weekday}-end"
+                    class="text-center relative text-lg text-black font-bold rounded-sm {isCompletedStyles(dayObj.isCompleted)}">
+                    {dayObj.day}
+                    <span class="block text-3xl -mt-2">
+                      {@html isCompletedContent(dayObj.isCompleted)}
+                    </span>
+                  </button>
+                {:else}
+                  <div
+                    id={dayObj.epoch}
+                    style="grid-column: {dayObj.weekday}-start / {dayObj.weekday}-end"
+                    class="text-center text-lg text-black font-bold rounded-sm {isCompletedStyles(dayObj.isCompleted)}">
+                    {dayObj.day}
+                    <span class="block text-3xl -mt-2">
+                      {@html isCompletedContent(dayObj.isCompleted)}
+                    </span>
+                  </div>
+                {/if}
               {/each}
             </div> <!-- end grid -->
           </div>
@@ -173,8 +187,43 @@
   {/if}
 </div>
 
+{#if !!detail}
+  <div
+    class="absolute top-0 left-0 z-10 flex items-center justify-center h-screen w-screen"
+    on:click={closeModal}
+    id="modal">
+    <div class="{theme.invertBg} {theme.invertBorder} border-2 p-2 shadow-lg overflow-y-scroll w-10/12 shadow-lg">
+      <h2 class={`text-2xl text-center mb-2 ${theme.invertText}`}>
+        Version: {detail.version}
+      </h2>
+      <ul>
+        {#each detail.tasks as task}
+          <li class={`
+      			py-1 px-2 mb-1 shadow-sm
+      			border ${theme.border}
+      			${theme.text} ${theme.bg}
+      			text-xl last:mb-12
+      		`}>
+          	{task}
+          </li>
+        {/each}
+      </ul>
+    </div>
+  </div>
+{/if}
+
 <style>
+  #modal {
+    background-color: rgba(0, 0, 0, 0.7);
+  }
   #scroll { height: 68vh;}
+  button {
+    --width: 5px;
+    --bg: rgba(255,255,255,0.4);
+    background-blend-mode: lighten;
+    background-image: repeating-linear-gradient(34deg, transparent, transparent var(--width), var(--bg) var(--width), var(--bg) calc(var(--width) * 2));
+  }
+
   .monthGrid {
     display: grid;
     grid-gap: 3px;
