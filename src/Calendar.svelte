@@ -1,5 +1,8 @@
 <script>
+  import Modal from './Modal.svelte';
+
   export let theme;
+  export let isSubmitted;
 
   let history = [];
   let chainHistory = [];
@@ -113,8 +116,9 @@
   } // END if (history.length)
 
   function isCompletedStyles(isCompleted) {
-    if (isCompleted === true) return 'bg-green-500'
-    else if (isCompleted === false) return 'bg-red-600'
+    let submittedClass = isSubmitted ? ' animatePop' : '';
+    if (isCompleted === true) return 'bg-green-500' + submittedClass
+    else if (isCompleted === false) return 'bg-red-600' + submittedClass
     else if (isCompleted === null) return 'bg-gray-500'
   }
   function isCompletedContent(isCompleted) {
@@ -123,18 +127,19 @@
     else if (isCompleted === null) return '&nbsp;'
   }
   function showDetail({ target }) {
-    const id = parseInt(target.id);
+    const id = parseInt(target.id || target.parentNode.id);
     detail = chainHistory.filter(item => item.startDay === id)[0];
+    console.log(detail)
   }
-  function closeModal({ target }) {
-    if (target.id === 'modal') detail = null;
+  function closeModal() {
+    detail = null;
   }
 </script>
 
 <div class={`${theme.text} text-center`}>
   <div class="flex justify-center items-center">
     <h2 class="text-4xl mr-8">Your History</h2>
-    <p class="rounded-full shadow w-16 h-16 {theme.border} border-solid border-2 border-b text-sm">
+    <p class="rounded-full shadow w-16 h-16 text-sm relative halo {isSubmitted && 'animateRotate'}">
       <span class="text-3xl block -mb-3">{numRecDays}</span>
       days
     </p>
@@ -183,15 +188,12 @@
       {/each} <!-- end year -->
     </div> <!-- end div#scroll -->
   {:else}
-    <h2 class="{theme.text} text-xl">YOU AINT GOT NO HISTORY</h2>
+    <h2 class="{theme.text} text-xl my-4">YOU AINT GOT NO HISTORY</h2>
   {/if}
 </div>
 
 {#if !!detail}
-  <div
-    class="absolute top-0 left-0 z-10 flex items-center justify-center h-screen w-screen"
-    on:click={closeModal}
-    id="modal">
+  <Modal on:closeModal={closeModal}>
     <div class="{theme.invertBg} {theme.invertBorder} border-2 p-2 shadow-lg overflow-y-scroll w-10/12 shadow-lg">
       <h2 class={`text-2xl text-center mb-2 ${theme.invertText}`}>
         Version: {detail.version}
@@ -199,23 +201,20 @@
       <ul>
         {#each detail.tasks as task}
           <li class={`
-      			py-1 px-2 mb-1 shadow-sm
-      			border ${theme.border}
-      			${theme.text} ${theme.bg}
-      			text-xl last:mb-12
-      		`}>
-          	{task}
+            py-1 px-2 mb-1 shadow-sm
+            border ${theme.border}
+            ${theme.text} ${theme.bg}
+            text-xl last:mb-12
+          `}>
+            {task}
           </li>
         {/each}
       </ul>
     </div>
-  </div>
+  </Modal>
 {/if}
 
 <style>
-  #modal {
-    background-color: rgba(0, 0, 0, 0.7);
-  }
   #scroll { height: 68vh;}
   button {
     --width: 5px;
@@ -223,7 +222,34 @@
     background-blend-mode: lighten;
     background-image: repeating-linear-gradient(34deg, transparent, transparent var(--width), var(--bg) var(--width), var(--bg) calc(var(--width) * 2));
   }
+  @keyframes popOut {
+    0% {transform: scale(0.125)}
+    80% {transform: scale(1.5)}
+    90% {transform: scale(1.5)}
+    100% {transform: scale(1)}
+  }
+  .animatePop:last-of-type {
+		animation: popOut 2.2s ease-out;
+	}
+  .halo::after {
+    content: '';
+    position: absolute;
+    top: 0; right: 0;
+    bottom: 0; left: 0;
 
+    border: 4px currentColor solid;
+    border-bottom-width: 2px;
+    border-radius: 50%;
+
+    box-shadow: 0 1px 12px currentColor;
+  }
+  @keyframes rotate {
+    0% {transform: rotate(0deg)}
+    100% {transform: rotate(360deg)}
+  }
+  .animateRotate::after {
+    animation: rotate 1.5s 2s;
+  }
   .monthGrid {
     display: grid;
     grid-gap: 3px;
