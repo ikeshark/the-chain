@@ -23,9 +23,10 @@
   const weekdays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
   if (numRecDays) {
-    if (isFuture) day = new Date(day.setDate(day.getDate() - 1));
-    year = day.getFullYear();
-    const month = day.getMonth();
+    let lastDate = new Date(day.getTime());
+    if (isFuture) lastDate.setDate(lastDate.getDate() -1);
+    year = lastDate.getFullYear();
+    const month = lastDate.getMonth();
     monthName = months[month];
     let monthArray = history[year][month];
     const [begArray, endArray] = fillOutMonth(
