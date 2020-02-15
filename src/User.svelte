@@ -1,18 +1,29 @@
 <script>
   import { createEventDispatcher } from 'svelte';
+  import Confirm from './Confirm.svelte';
   const dispatch = createEventDispatcher();
 
   export let theme;
   export let themes;
 
+  let isConfirming = false;
+  let message = '';
+
   function changeTheme(e) {
     dispatch('changeTheme', { newTheme: e.target.value });
   }
   function setTheme(e) {
-    // need to have some sort of confirm that preference was set
     var data = new FormData(e.target);
     dispatch('setTheme', { newTheme: data.get('theme') });
     dispatch('createToast', { message: 'New theme saved' });
+  }
+  function clearStorage() {
+    localStorage.clear();
+    location.reload();
+  }
+  function confirmDelete() {
+    message = 'Are you sure you want to clear you’re data? This can’t be undone';
+    isConfirming = true;
   }
 </script>
 
@@ -47,4 +58,23 @@
       Set preference
     </button>
   </form>
+  <button
+    type="button"
+    class="{`
+      block mx-auto my-4 p-4
+      text-xl font-bold
+      border-double border-8 border-black
+    `}"
+    on:click={confirmDelete}
+  >
+    Clear storage
+  </button>
+
+  {#if isConfirming}
+    <Confirm
+      {message}
+      on:confirm={clearStorage}
+      on:dismiss={() => isConfirming = false}
+    />
+  {/if}
 </div>

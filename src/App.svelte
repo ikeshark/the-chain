@@ -8,10 +8,11 @@
 	import Today from './Today.svelte';
 	import User from './User.svelte';
 	import Calendar from './Calendar.svelte';
-	import Toast from './Toast.svelte'
+	import Toast from './Toast.svelte';
 
 	let isNav = false;
 	let isFirstTime = true;
+	let isSubmitted = false;
 
 	let tab = '';
 
@@ -109,6 +110,9 @@
 	$: if (tasks.length) localStorage.setItem('tasks', JSON.stringify(tasks));
 
 	function changeTab(e) {
+		// isSubmitted is used to trigger animations right after submit
+		//// once they navigate away from page with animations we want to not trigger anymore
+		isSubmitted = false;
 		tab = e.target.value;
 		isNav = false;
 	}
@@ -145,6 +149,7 @@
 		});
 		day = formatDate(day.setDate(day.getDate() + 1));
 		tab = 'calendar';
+		isSubmitted = true;
 	}
 	function submitChain(e) {
 		tasks = e.detail.chain;
@@ -152,26 +157,31 @@
 		let chainHistory = [];
 		if (isFirstTime) {
 			isFirstTime = false;
-		} else if (localStorage.chainHistory) {
-			chainHistory = JSON.parse(localStorage.getItem('chainHistory'))
-		}
-		// if a chain is updated twice in a day
-		//// don't update version, overwrite tasks
-		if (chainHistory[chainHistory.length - 1].startDay === day.getTime()) {
-			const historyItem = chainHistory[chainHistory.length - 1];
-			historyItem.tasks = tasks.map(task => task.title);
-			chainHistory = chainHistory.filter(item => item.startDay !== day.getTime());
-			chainHistory = [...chainHistory, historyItem];
-		} else {
-			version = currentStreak ? version + 0.01 : version + 1;
-			version = parseFloat(version.toFixed(2));
-			chainHistory = [...chainHistory, {
+			version = 1;
+			chainHistory = [{
 				version,
 				startDay: day.getTime(),
 				tasks: tasks.map(task => task.title)
-			}]
+			}];
+		} else if (localStorage.chainHistory) {
+			chainHistory = JSON.parse(localStorage.getItem('chainHistory'))
+			// if a chain is updated twice in a day
+			//// don't update version, overwrite tasks
+			if (chainHistory[chainHistory.length - 1].startDay === day.getTime()) {
+				const historyItem = chainHistory[chainHistory.length - 1];
+				historyItem.tasks = tasks.map(task => task.title);
+				chainHistory = chainHistory.filter(item => item.startDay !== day.getTime());
+				chainHistory = [...chainHistory, historyItem];
+			} else {
+	 			version = currentStreak ? version + 0.01 : version + 1;
+	 			version = parseFloat(version.toFixed(2));
+	 			chainHistory = [...chainHistory, {
+	 				version,
+	 				startDay: day.getTime(),
+	 				tasks: tasks.map(task => task.title)
+	 			}]
+			}
 		}
-
 		localStorage.setItem('chainHistory', JSON.stringify(chainHistory));
 		tab = 'today';
 	}
@@ -251,7 +261,7 @@
 	{/if}
 	{#if tab === 'calendar'}
 		<div in:scale={{delay: 400}} out:scale={{delay: 0}}>
-			<Calendar {theme} />
+			<Calendar {theme} {isSubmitted} />
 		</div>
 	{:else if tab === 'profile'}
 		<div in:scale={{delay: 400}} out:scale>
