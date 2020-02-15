@@ -76,11 +76,8 @@
 			//// you will have a number, no need to parse
 			version = chainHistory[chainHistory.length - 1].version;
 
-			if (localStorage.history) {
-				const history = JSON.parse(localStorage.getItem('history'));
-				const epoch = history[history.length - 1].day;
-				day = new Date(epoch);
-				day = formatDate(day.setDate(day.getDate() + 1));
+			if (localStorage.currentDay) {
+				day = new Date(parseInt(localStorage.currentDay))
 
 				if (new Date().getDate() > day.getDate()) {
 					createToast({ detail: { message:
@@ -133,12 +130,33 @@
 		isNav = !isNav;
 	}
 	function submitDay() {
+		const year = day.getFullYear();
+		const month = day.getMonth();
+
 		const isCompleted = tasksLeft ? false : true;
+		const value = { day: day.getTime(), isCompleted };
+
+		let history = {};
+		if (localStorage.history) {
+			history = JSON.parse(localStorage.getItem('history'));
+		} else {
+			history.numRecDays = 0
+		}
+		history.numRecDays = history.numRecDays + 1;
+		if (!history[year]) {
+			history[year] = {};
+			history[year][month] = [value];
+		}	else if (!history[year][month]) {
+			history[year][month] = [value]
+		} else {
+			history[year][month] = [ ...history[year][month], value ];
+		}
+
 		currentStreak = isCompleted ? currentStreak + 1 : 0;
-		let history = [];
-		if (localStorage.history) history = JSON.parse(localStorage.getItem('history'));
-		history = [...history, { day: day.getTime(), isCompleted }];
+		day = new Date(day.setDate(day.getDate() + 1))
+
 		localStorage.setItem('history', JSON.stringify(history));
+		localStorage.setItem('currentDay', day.getTime());
 		localStorage.setItem('currentStreak', currentStreak);
 		if (currentStreak > longestStreak) {
 			longestStreak = currentStreak;
@@ -147,7 +165,6 @@
 		tasks = tasks.map(task => {
 			return { ...task, isCompleted: false }
 		});
-		day = formatDate(day.setDate(day.getDate() + 1));
 		tab = 'calendar';
 		isSubmitted = true;
 	}
@@ -261,7 +278,7 @@
 	{/if}
 	{#if tab === 'calendar'}
 		<div in:scale={{delay: 400}} out:scale={{delay: 0}}>
-			<Calendar {theme} {isSubmitted} />
+			<Calendar {theme} {isSubmitted} {isFuture} {day} />
 		</div>
 	{:else if tab === 'profile'}
 		<div in:scale={{delay: 400}} out:scale>

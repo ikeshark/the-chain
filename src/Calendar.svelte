@@ -3,45 +3,45 @@
 
   export let theme;
   export let isSubmitted;
+  export let isFuture;
+  export let day;
 
-  let history = [];
+  let history = {};
   let chainHistory = [];
   let dataObj;
   let showModal = false;
   let detail = null;
+  let visibleMonth = [];
+  let monthName = '';
+  let year = null;
 
   if (localStorage.chainHistory) chainHistory = JSON.parse(localStorage.getItem('chainHistory'));
   if (localStorage.history) history = JSON.parse(localStorage.getItem('history'));
 
-  const numRecDays = history.length;
+  const numRecDays = history.numRecDays || 0;
+  const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'November', 'December'];
   const weekdays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
-  if (history.length) {
-    history.sort((a, b) => a.day - b.day);
-
-    const firstEpoch = history[0].day;
-    const lastEpoch =  history[history.length -1].day;
-
-    const paddedMonths = fillOutMonth(firstEpoch, lastEpoch);
-
-    history = [...paddedMonths[0], ...history, ...paddedMonths[1]];
-
-    function findYears(epochA, epochZ) {
-      const firstYear = new Date(epochA).getFullYear();
-      const lastYear = new Date(epochZ).getFullYear();
-
-      if (firstYear === lastYear) return [firstYear]
-      else if (lastYear - firstYear === 1) {
-        return [lastYear, firstYear]
-      }
-      else {
-        let yearArray = [];
-        for (let i = firstYear; i <= lastYear; i++ ) {
-          yearArray.push(i);
-        }
-        return yearArray;
-      }
-    }
+  if (numRecDays) {
+    if (isFuture) day = new Date(day.setDate(day.getDate() - 1));
+    year = day.getFullYear();
+    const month = day.getMonth();
+    monthName = months[month];
+    let monthArray = history[year][month];
+    const [begArray, endArray] = fillOutMonth(
+      monthArray[0].day, monthArray[monthArray.length -1].day
+    )
+    monthArray = [...begArray, ...monthArray, ...endArray];
+    visibleMonth = monthArray.map(day => {
+      const date = new Date(day.day);
+      const value = {
+        isCompleted: day.isCompleted,
+        weekday: date.getDay(),
+        day: date.getDate(),
+        epoch: day.day,
+      };
+      return value;
+    });
 
     function fillOutMonth(epochA, epochZ) {
       // start of month is always 1
@@ -77,42 +77,6 @@
       return [newBegDates, newEndDates];
     }
 
-    function createDataStructure(yearArray) {
-      const dataObj = {};
-      for (var i = 0; i < yearArray.length; i++) {
-        dataObj[yearArray[i]] = {}
-      }
-      return dataObj;
-    }
-
-    dataObj = createDataStructure(
-      findYears(firstEpoch, lastEpoch)
-    );
-
-    history.sort((a, b) => b.day - a.day);
-    history.forEach(item => {
-      const date = new Date(item.day);
-      const year = date.getFullYear();
-      const month = date.toLocaleDateString('en', {
-        month: 'long'
-      });
-      const weekday = date.toLocaleDateString('en', {
-        weekday: 'short'
-      });
-
-      const value = {
-        isCompleted: item.isCompleted,
-        day: date.getDate(),
-        weekday,
-        epoch: item.day,
-      };
-      if (dataObj[year][month]) {
-        dataObj[year][month] = [ ...dataObj[year][month], value ];
-      } else {
-        dataObj[year][month] = [value];
-      }
-    });
-
   } // END if (history.length)
 
   function isCompletedStyles(isCompleted) {
@@ -144,49 +108,42 @@
       days
     </p>
   </div>
-  {#if history.length}
-    <div id="scroll" class="rounded-lg overflow-y-scroll">
-      {#each Object.entries(dataObj).sort((a, b) => b[0] - a[0]) as year}
-        {#if Object.entries(dataObj).length > 1}<h3>{year[0]}</h3>{/if}
-        {#each Object.entries(year[1]) as month}
-          <div class="last:mb-12">
-            <h4 class={`text-2xl text-center ${theme.text}`}>{month[0]}</h4>
-            <div class="monthGrid">
-              {#each weekdays as weekday}
-                <div style="grid-column: {weekday}">
-                  {weekday}
-                </div>
-              {/each}
-              {#each month[1].sort((a, b) => a.day - b.day) as dayObj}
-                {#if chainHistory.map(x => x.startDay).indexOf(dayObj.epoch) !== -1}
-                  <button
-                    id={dayObj.epoch}
-                    type="button"
-                    on:click={showDetail}
-                    style="grid-column: {dayObj.weekday}-start / {dayObj.weekday}-end"
-                    class="text-center relative text-lg text-black font-bold rounded-sm {isCompletedStyles(dayObj.isCompleted)}">
-                    {dayObj.day}
-                    <span class="block text-3xl -mt-2">
-                      {@html isCompletedContent(dayObj.isCompleted)}
-                    </span>
-                  </button>
-                {:else}
-                  <div
-                    id={dayObj.epoch}
-                    style="grid-column: {dayObj.weekday}-start / {dayObj.weekday}-end"
-                    class="text-center text-lg text-black font-bold rounded-sm {isCompletedStyles(dayObj.isCompleted)}">
-                    {dayObj.day}
-                    <span class="block text-3xl -mt-2">
-                      {@html isCompletedContent(dayObj.isCompleted)}
-                    </span>
-                  </div>
-                {/if}
-              {/each}
-            </div> <!-- end grid -->
+  {#if numRecDays}
+    <div class="rounded-lg">
+      <h3 class={`text-2xl text-center ${theme.text}`}>{monthName} {year}</h3>
+      <div class="monthGrid">
+        {#each weekdays as weekday}
+          <div style="grid-column: {weekday}">
+            {weekday}
           </div>
-        {/each} <!-- end month -->
-      {/each} <!-- end year -->
-    </div> <!-- end div#scroll -->
+        {/each}
+        {#each visibleMonth as {epoch, weekday, isCompleted, day}}
+          {#if chainHistory.map(x => x.startDay).indexOf(epoch) !== -1}
+            <button
+              id={epoch}
+              type="button"
+              on:click={showDetail}
+              style="grid-column: {weekday}"
+              class="text-center relative text-lg text-black font-bold rounded-sm {isCompletedStyles(isCompleted)}">
+              {day}
+              <span class="block text-3xl -mt-2">
+                {@html isCompletedContent(isCompleted)}
+              </span>
+            </button>
+          {:else}
+            <div
+              id={epoch}
+              style="grid-column: {weekday}"
+              class="text-center text-lg text-black font-bold rounded-sm {isCompletedStyles(isCompleted)}">
+              {day}
+              <span class="block text-3xl -mt-2">
+                {@html isCompletedContent(isCompleted)}
+              </span>
+            </div>
+          {/if}
+        {/each}
+      </div> <!-- end grid -->
+    </div>
   {:else}
     <h2 class="{theme.text} text-xl my-4">YOU AINT GOT NO HISTORY</h2>
   {/if}
