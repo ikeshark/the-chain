@@ -14,7 +14,7 @@
 	let isFirstTime = true;
 	let isSubmitted = false;
 
-	let tab = '';
+	let tab = 'today';
 
 	let day = formatDate(new Date().getTime());
 	let tasks = [];
@@ -23,6 +23,8 @@
 	let longestStreak = 0;
 	let version = 0;
 	let toastId = 0;
+
+	const badges = [365, 180, 90, 28, 14, 7, 1];
 
 	const themes = {
 		day: {
@@ -69,7 +71,6 @@
 	onMount(() => {
 		if (localStorage.tasks) {
 			isFirstTime = false;
-			tab = 'calendar';
 			tasks = JSON.parse(localStorage.getItem('tasks'));
 			const chainHistory = JSON.parse(localStorage.getItem('chainHistory'));
 			// if storing num in localStorage that is in obj (using JSON.parse / stringify)
@@ -158,14 +159,15 @@
 		localStorage.setItem('history', JSON.stringify(history));
 		localStorage.setItem('currentDay', day.getTime());
 		localStorage.setItem('currentStreak', currentStreak);
+		tab = 'calendar';
 		if (currentStreak > longestStreak) {
 			longestStreak = currentStreak;
 			localStorage.setItem('longestStreak', longestStreak);
+			tab = 'user';
 		}
 		tasks = tasks.map(task => {
 			return { ...task, isCompleted: false }
 		});
-		tab = 'calendar';
 		isSubmitted = true;
 	}
 	function submitChain(e) {
@@ -280,11 +282,13 @@
 		<div in:scale={{delay: 400}} out:scale={{delay: 0}}>
 			<Calendar {theme} {isSubmitted} {isFuture} {day} />
 		</div>
-	{:else if tab === 'profile'}
+	{:else if tab === 'user'}
 		<div in:scale={{delay: 400}} out:scale>
 			<User
+				{badges}
 				{themes}
 				{theme}
+				{longestStreak}
 				on:setTheme={setTheme}
 				on:changeTheme={changeTheme}
 			/>
@@ -318,7 +322,7 @@
 		<button
 			type="button" value="today"
 			on:click={changeTab}
-			class="menuIcon home">🏠</button>
+			class="menuIcon today">🏠</button>
 		<button
 			type="button" value="edit"
 			on:click={changeTab}
@@ -328,9 +332,9 @@
 			on:click={changeTab}
 			class="menuIcon calendar">📅</button>
 		<button
-			type="button" value="profile"
+			type="button" value="user"
 			on:click={changeTab}
-			class="menuIcon profile">👤</button>
+			class="menuIcon user">👤</button>
 	</nav>
 {/if}
 
@@ -349,10 +353,10 @@
     background-color: white;
 	}
 
-	.home { top: 5.4rem; left: 2.1rem; }
-	.edit { top: .5rem; left: 10rem; }
+	.today { top: 10rem; left: 1rem; }
+	.edit { top: 5.4rem; left: 2.1rem; }
 	.calendar { top: 2rem; left: 5.6rem; }
-	.profile { top: 10rem; left: 1rem; }
+	.user { top: .5rem; left: 10rem; }
 
 	.mobileNav {
 		width: 25rem;

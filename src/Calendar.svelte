@@ -12,8 +12,8 @@
   let showModal = false;
   let detail = null;
   let visibleMonth = [];
-  let monthName = '';
-  let year = null;
+  let month = 0;
+  let year = 0;
 
   if (localStorage.chainHistory) chainHistory = JSON.parse(localStorage.getItem('chainHistory'));
   if (localStorage.history) history = JSON.parse(localStorage.getItem('history'));
@@ -22,18 +22,38 @@
   const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'November', 'December'];
   const weekdays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
-  if (numRecDays) {
-    let lastDate = new Date(day.getTime());
-    if (isFuture) lastDate.setDate(lastDate.getDate() -1);
-    year = lastDate.getFullYear();
-    const month = lastDate.getMonth();
-    monthName = months[month];
+  $: monthName = months[month];
+  $: isPrevMonth = month ?
+    !!history[year][month - 1] : !!history[year - 1];
+  $: isNextMonth = month !== 12 ?
+    !!history[year][month + 1] : !!history[year + 1];
+
+  function showPrevMonth() {
+    if (month) {
+      month = month - 1;
+    } else {
+      month = 12;
+      year = year - 1;
+    }
+    visibleMonth = populateMonth();
+  }
+  function showNextMonth() {
+    if (month !== 12) {
+      month = month + 1;
+    } else {
+      month = 0;
+      year = year + 1;
+    }
+    visibleMonth = populateMonth();
+  }
+
+  function populateMonth() {
     let monthArray = history[year][month];
     const [begArray, endArray] = fillOutMonth(
       monthArray[0].day, monthArray[monthArray.length -1].day
     )
     monthArray = [...begArray, ...monthArray, ...endArray];
-    visibleMonth = monthArray.map(day => {
+    return monthArray.map(day => {
       const date = new Date(day.day);
       const value = {
         isCompleted: day.isCompleted,
@@ -43,42 +63,40 @@
       };
       return value;
     });
-
-    function fillOutMonth(epochA, epochZ) {
-      // start of month is always 1
-      // if start date isn't 1, simply make an array with rest of values
-      const startDate = new Date(epochA).getDate();
-      let newBegDates = [];
-      if (startDate !== 1) {
-        let result = [];
-        for (let i = 1; i < startDate; i++) {
-          newBegDates.push({
-            day: new Date(epochA).setDate(i),
-            isCompleted: null
-          });
-        }
-      }
-
-      const lastDate = new Date(epochZ).getDate()
-      const lastMonth = new Date(epochZ).getMonth();
-      let newEndDates = [];
-
-      for (let i = lastDate + 1; i <= 31; i++) {
-        const tomorrow = new Date(epochZ)
-        tomorrow.setDate(i);
-        if (tomorrow.getMonth() !== lastMonth) {
-          break;
-        }
-        newEndDates.push({
-          day: new Date(epochZ).setDate(i),
+  }
+  function fillOutMonth(epochA, epochZ) {
+    // start of month is always 1
+    // if start date isn't 1, simply make an array with rest of values
+    const startDate = new Date(epochA).getDate();
+    let newBegDates = [];
+    if (startDate !== 1) {
+      let result = [];
+      for (let i = 1; i < startDate; i++) {
+        newBegDates.push({
+          day: new Date(epochA).setDate(i),
           isCompleted: null
         });
       }
-
-      return [newBegDates, newEndDates];
     }
 
-  } // END if (history.length)
+    const lastDate = new Date(epochZ).getDate()
+    const lastMonth = new Date(epochZ).getMonth();
+    let newEndDates = [];
+
+    for (let i = lastDate + 1; i <= 31; i++) {
+      const tomorrow = new Date(epochZ)
+      tomorrow.setDate(i);
+      if (tomorrow.getMonth() !== lastMonth) {
+        break;
+      }
+      newEndDates.push({
+        day: new Date(epochZ).setDate(i),
+        isCompleted: null
+      });
+    }
+
+    return [newBegDates, newEndDates];
+  }
 
   function isCompletedStyles(isCompleted) {
     let submittedClass = isSubmitted ? ' animatePop' : '';
@@ -99,6 +117,14 @@
   function closeModal() {
     detail = null;
   }
+
+  if (numRecDays) {
+    let lastDate = new Date(day.getTime());
+    if (isFuture) lastDate.setDate(lastDate.getDate() -1);
+    year = lastDate.getFullYear();
+    month = lastDate.getMonth();
+    visibleMonth = populateMonth();
+  }
 </script>
 
 <div class={`${theme.text} text-center`}>
@@ -112,7 +138,7 @@
   {#if numRecDays}
     <div class="rounded-lg">
       <h3 class={`text-2xl text-center ${theme.text}`}>{monthName} {year}</h3>
-      <div class="monthGrid">
+      <div class="monthGrid mb-4">
         {#each weekdays as weekday}
           <div style="grid-column: {weekday}">
             {weekday}
@@ -124,8 +150,8 @@
               id={epoch}
               type="button"
               on:click={showDetail}
-              style="grid-column: {weekday}"
-              class="text-center relative text-lg text-black font-bold rounded-sm {isCompletedStyles(isCompleted)}">
+              style="grid-column: {weekday === 0 ? 7 : weekday}"
+              class="hasDetail text-center relative text-lg text-black font-bold rounded-sm {isCompletedStyles(isCompleted)}">
               {day}
               <span class="block text-3xl -mt-2">
                 {@html isCompletedContent(isCompleted)}
@@ -134,7 +160,7 @@
           {:else}
             <div
               id={epoch}
-              style="grid-column: {weekday}"
+              style="grid-column: {weekday === 0 ? 7 : weekday}"
               class="text-center text-lg text-black font-bold rounded-sm {isCompletedStyles(isCompleted)}">
               {day}
               <span class="block text-3xl -mt-2">
@@ -144,6 +170,22 @@
           {/if}
         {/each}
       </div> <!-- end grid -->
+      {#if isPrevMonth}
+        <button
+          on:click={showPrevMonth}
+          class="px-2 py-1 font-bold text-2xl border-white mr-6"
+        >
+          &larr;
+        </button>
+      {/if}
+      {#if isNextMonth}
+        <button
+          on:click={showNextMonth}
+          class="px-2 py-1 font-bold text-2xl border-white"
+        >
+          &rarr;
+        </button>
+      {/if}
     </div>
   {:else}
     <h2 class="{theme.text} text-xl my-4">YOU AINT GOT NO HISTORY</h2>
@@ -173,8 +215,7 @@
 {/if}
 
 <style>
-  #scroll { height: 68vh;}
-  button {
+  .hasDetail {
     --width: 5px;
     --bg: rgba(255,255,255,0.4);
     background-blend-mode: lighten;
