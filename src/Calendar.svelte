@@ -19,26 +19,26 @@
   if (localStorage.history) history = JSON.parse(localStorage.getItem('history'));
 
   const numRecDays = history.numRecDays || 0;
-  const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'November', 'December'];
+  const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
   const weekdays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
   $: monthName = months[month];
   $: isPrevMonth = month ?
     !!history[year][month - 1] : !!history[year - 1];
-  $: isNextMonth = month !== 12 ?
+  $: isNextMonth = month !== 11 ?
     !!history[year][month + 1] : !!history[year + 1];
 
   function showPrevMonth() {
     if (month) {
       month = month - 1;
     } else {
-      month = 12;
+      month = 11;
       year = year - 1;
     }
     visibleMonth = populateMonth();
   }
   function showNextMonth() {
-    if (month !== 12) {
+    if (month !== 11) {
       month = month + 1;
     } else {
       month = 0;
@@ -112,7 +112,6 @@
   function showDetail({ target }) {
     const id = parseInt(target.id || target.parentNode.id);
     detail = chainHistory.filter(item => item.startDay === id)[0];
-    console.log(detail)
   }
   function closeModal() {
     detail = null;
@@ -170,22 +169,24 @@
           {/if}
         {/each}
       </div> <!-- end grid -->
-      {#if isPrevMonth}
-        <button
-          on:click={showPrevMonth}
-          class="px-2 py-1 font-bold text-2xl border-white mr-6"
-        >
-          &larr;
-        </button>
-      {/if}
-      {#if isNextMonth}
-        <button
-          on:click={showNextMonth}
-          class="px-2 py-1 font-bold text-2xl border-white"
-        >
-          &rarr;
-        </button>
-      {/if}
+      <div class="fixed bottom-0 mb-3 pageBtns">
+        {#if isPrevMonth}
+          <button
+            on:click={showPrevMonth}
+            class="px-2 py-1 font-bold text-2xl border-white mr-6"
+          >
+            &larr;
+          </button>
+        {/if}
+        {#if isNextMonth}
+          <button
+            on:click={showNextMonth}
+            class="px-2 py-1 font-bold text-2xl border-white"
+          >
+            &rarr;
+          </button>
+        {/if}
+      </div>
     </div>
   {:else}
     <h2 class="{theme.text} text-xl my-4">YOU AINT GOT NO HISTORY</h2>
@@ -194,7 +195,7 @@
 
 {#if !!detail}
   <Modal on:closeModal={closeModal}>
-    <div class="{theme.invertBg} {theme.invertBorder} border-2 p-2 shadow-lg overflow-y-scroll w-10/12 shadow-lg">
+    <div class="{theme.invertBg} {theme.invertBorder} border-2 p-2 shadow-lg overflow-y-scroll w-10/12 max-w-500 shadow-lg">
       <h2 class={`text-2xl text-center mb-2 ${theme.invertText}`}>
         Version: {detail.version}
       </h2>
@@ -230,6 +231,10 @@
   .animatePop:last-of-type {
 		animation: popOut 2.2s ease-out;
 	}
+  .pageBtns {
+    margin-left: 50%;
+    transform: translateX(-50%);
+  }
   .halo::after {
     content: '';
     position: absolute;

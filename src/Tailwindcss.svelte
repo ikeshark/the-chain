@@ -3,11 +3,7 @@
   @tailwind components;
   @tailwind utilities;
 
-  body {
-    max-width: 666px;
-    margin: 0 auto;
-    padding: 0px;
-  }
+  body { padding: 0 }
   [class*='bg-'] {
     transition: background-color 0.5s;
   }
@@ -16,5 +12,8 @@
   }
   [class*='border-'] {
     transition: border-color 0.5s;
+  }
+  .max-w-500 {
+    max-width: 500px;
   }
 </style>

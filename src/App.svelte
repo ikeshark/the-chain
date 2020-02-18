@@ -111,7 +111,7 @@
 		// isSubmitted is used to trigger animations right after submit
 		//// once they navigate away from page with animations we want to not trigger anymore
 		isSubmitted = false;
-		tab = e.target.value;
+		tab = e.target.value || e.target.parentNode.value;
 		isNav = false;
 	}
 	function toggleComplete({ detail }) {
@@ -163,7 +163,8 @@
 		if (currentStreak > longestStreak) {
 			longestStreak = currentStreak;
 			localStorage.setItem('longestStreak', longestStreak);
-			tab = 'user';
+			// if there is a new badge go to user
+			if (badges.indexOf(currentStreak) !== -1) tab = 'user';
 		}
 		tasks = tasks.map(task => {
 			return { ...task, isCompleted: false }
@@ -233,74 +234,113 @@
 
 <Tailwindcss />
 
-<div class={`p-2 h-screen mx-auto relative overflow-hidden ${theme.bg}`}>
-	<h1 class={`text-3xl mb-2 text-center ${theme.text}`}>Don’t Break the Chain</h1>
-	<div class={`flex items-center justify-center mb-4 ${theme.text}`}>
-		<div class="chain"></div>
-		<div class="chain"></div>
-		<div class="chain"></div>
-		<div class="chain"></div>
-		<div class="chain"></div>
-		<div class="chain"></div>
-		<div class="chain"></div>
-	</div>
-
-	{#if tab === 'today'}
-		<div in:scale={{delay: 500}} out:scale={{delay: 0}}>
-			<Today
-				{day}
-	      {currentStreak}
-	      {longestStreak}
-				{tasks}
-				{tasksLeft}
-				{version}
-				{isFuture}
-				{theme}
-				on:toggleComplete={toggleComplete}
-	    />
-		</div>
-		{#if !isFuture}
+<div class="mainWrapper p-2 h-screen mx-auto md:flex relative overflow-hidden {theme.bg}">
+	<nav
+		class="mobileNav {!isNav && 'hidden'} md:block z-10 fixed rounded-full md:rounded-none {theme.invertBg} border-4 border-solid {theme.invertBorder} shadow-lg"
+		in:scale={{ start: 0.2 }}
+		out:scale={{ easing: quadIn, start: 0.2, duration: 200 }}
+	>
 		<button
-		  class="absolute bottom-0 left-0 m-4 border-gray-800 border-solid bg-gray-200 py-1 px-3 text-2xl font-bold rounded-lg border-2"
-		  on:click={submitDay}
+			type="button" value="today"
+			on:click={changeTab}
+			class="menuBtn today font-bold md:my-4"
 		>
-		  Submit
+			<span class="hidden md:block leading-tight">HOME</span>
+			<span class="menuIcon">🏠</span>
 		</button>
+		<button
+			type="button" value="edit"
+			on:click={changeTab}
+			class="menuBtn edit font-bold md:my-4"
+		>
+			<span class="hidden md:block leading-tight">EDIT CHAIN</span>
+			<span class="menuIcon">✏️</span>
+		</button>
+		<button
+			type="button" value="calendar"
+			on:click={changeTab}
+			class="menuBtn calendar font-bold md:my-4"
+		>
+			<span class="hidden md:block leading-tight">YOUR HISTORY</span>
+			<span class="menuIcon">📅</span>
+		</button>
+		<button
+			type="button" value="user"
+			on:click={changeTab}
+			class="menuBtn user font-bold md:my-4"
+		>
+			<span class="hidden md:block leading-tight">BADGES AND SETTINGS</span>
+			<span class="menuIcon">👤</span>
+		</button>
+	</nav>
+	<div class="md:px-4 w-full">
+		<h1 class={`text-3xl mb-2 text-center ${theme.text}`}>Don’t Break the Chain</h1>
+		<div class={`flex items-center justify-center mb-4 ${theme.text}`}>
+			<div class="chain"></div>
+			<div class="chain"></div>
+			<div class="chain"></div>
+			<div class="chain"></div>
+			<div class="chain"></div>
+			<div class="chain"></div>
+			<div class="chain"></div>
+		</div>
+
+		{#if tab === 'today'}
+			<div in:scale={{delay: 700}} out:scale>
+				<Today
+					{day}
+		      {currentStreak}
+		      {longestStreak}
+					{tasks}
+					{tasksLeft}
+					{version}
+					{isFuture}
+					{theme}
+					on:toggleComplete={toggleComplete}
+		    />
+			</div>
+			{#if !isFuture}
+				<button
+				  class="absolute bottom-0 left-0 m-4 border-gray-800 border-solid bg-gray-200 py-1 px-3 text-2xl font-bold rounded-lg border-2"
+				  on:click={submitDay}
+				>
+				  Submit
+				</button>
+			{/if}
+		{:else if tab === 'edit'}
+			<div in:scale={{delay: 600}} out:scale>
+				<EditChain
+					{theme}
+					{isFirstTime}
+					{tasks}
+					on:submitChain={submitChain}
+				/>
+			</div>
+		{:else if tab === 'calendar'}
+			<div in:scale={{delay: 600}} out:scale>
+				<Calendar {theme} {isSubmitted} {isFuture} {day} />
+			</div>
+		{:else if tab === 'user'}
+			<div in:scale={{delay: 600}} out:scale>
+				<User
+					{badges}
+					{themes}
+					{theme}
+					{isSubmitted}
+					{longestStreak}
+					on:setTheme={setTheme}
+					on:changeTheme={changeTheme}
+				/>
+			</div>
 		{/if}
-	{/if}
-	{#if tab === 'edit'}
-		<div in:scale={{delay: 400}} out:scale={{delay: 0}}>
-			<EditChain
-				{theme}
-				{isFirstTime}
-				{tasks}
-				on:submitChain={submitChain}
-			/>
-		</div>
-	{/if}
-	{#if tab === 'calendar'}
-		<div in:scale={{delay: 400}} out:scale={{delay: 0}}>
-			<Calendar {theme} {isSubmitted} {isFuture} {day} />
-		</div>
-	{:else if tab === 'user'}
-		<div in:scale={{delay: 400}} out:scale>
-			<User
-				{badges}
-				{themes}
-				{theme}
-				{longestStreak}
-				on:setTheme={setTheme}
-				on:changeTheme={changeTheme}
-			/>
-		</div>
-	{/if}
+	</div>
 </div>
 
 
 {#if !isFirstTime}
 	<button
 		on:click={openNav}
-		class="fixed z-20 bottom-0 right-0 m-4 border-gray-800 border-solid w-12 h-12 font-bold rounded-full leading-none border-2 {isNav ? 'bg-white text-xl' : 'text-4xl bg-gray-300' }">
+		class="fixed z-20 md:hidden bottom-0 right-0 m-4 border-gray-800 border-solid w-12 h-12 font-bold rounded-full leading-none border-2 {isNav ? 'bg-white text-xl' : 'text-4xl bg-gray-300' }">
 		{@html isNav ? '&times;' : '⋮'}
 	</button>
 {/if}
@@ -313,40 +353,18 @@
 	</div>
 {/if}
 
-{#if isNav}
-	<nav
-		class={`mobileNav z-10 fixed rounded-full ${theme.invertBg} border-4 border-solid ${theme.invertBorder} shadow-lg`}
-		in:scale={{ start: 0.2 }}
-		out:scale={{ easing: quadIn, start: 0.2, duration: 200 }}
-	>
-		<button
-			type="button" value="today"
-			on:click={changeTab}
-			class="menuIcon today">🏠</button>
-		<button
-			type="button" value="edit"
-			on:click={changeTab}
-			class="menuIcon edit">✏️</button>
-		<button
-			type="button" value="calendar"
-			on:click={changeTab}
-			class="menuIcon calendar">📅</button>
-		<button
-			type="button" value="user"
-			on:click={changeTab}
-			class="menuIcon user">👤</button>
-	</nav>
-{/if}
 
 <style>
 	@keyframes spin {
 		from {transform: rotateX(0deg)}
 		to {transform: rotateX(180deg)}
 	}
+	.menuBtn {
+		position: absolute;
+	}
 	.menuIcon {
 		font-size: 2.5rem;
     border: 2px solid black;
-    position: absolute;
     border-radius: 50%;
     width: 3rem;
     height: 3rem;
@@ -363,6 +381,25 @@
 		height: 25rem;
 		bottom: -11rem;
 		right: -11rem;
+	}
+	@media (min-width: 768px) {
+		.mainWrapper {
+			max-width: 600px;
+		}
+		.mobileNav {
+			position:static;
+			height: 100%;
+			width: 140px;
+		}
+		.menuBtn {
+			position: relative;
+			display: block;
+			top: 0; right: 0; bottom: 0; left: 0;
+			border: none;
+			width: 120px;
+			margin-top: 1rem;
+			margin-bottom: 1rem;
+		}
 	}
 	.chain {
 		border: 3px solid currentColor;
