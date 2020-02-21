@@ -51,15 +51,15 @@
   </button>
 </nav>
 {#if tab === 'settings'}
-  <div class={`${theme.invertBorder} border-2 p-2 shadow-lg z-10 ${theme.invertBg} relative`}>
-  	<h2 class={`${theme.invertText} text-2xl text-center`}>Themes</h2>
+  <div class="{theme.invertBorder} border-2 p-2 shadow-lg z-10 {theme.invertBg} relative">
+  	<h2 class="{theme.invertText} text-2xl text-center">Themes</h2>
     <form
-      class={`${theme.text} ${theme.bg} p-2`}
+      class="{theme.text} {theme.bg} p-2"
       on:submit|preventDefault={setTheme}
     >
       <div class="flex flex-col flex-wrap h-48">
       {#each Object.values(themes) as { name, bg, border, invertBg }}
-        <label class="w-50 mb-1 py-1 px-4 text-center text-xl font-bold {(theme.name === name) && `${theme.border} border-2 border-solid`}">
+        <label class="w-50 mb-1 py-1 px-4 text-center text-xl font-bold {(theme.name === name) && theme.border} border-2 border-solid">
           {name} <br />
           <input
             class="sr-only"
@@ -67,17 +67,13 @@
             type="radio"
             value={name}
             on:change={changeTheme}>
-          <span class={`${bg} w-10 h-10 inline-block border border-solid border-black`}></span>
-          <span class={`${invertBg} w-10 h-10 inline-block border border-solid border-black`}></span>
+          <span class="{bg} w-10 h-10 inline-block border border-solid border-black"></span>
+          <span class="{invertBg} w-10 h-10 inline-block border border-solid border-black"></span>
         </label>
       {/each}
       </div>
       <button
-        class={`
-          block mx-auto my-4 p-4
-          text-xl font-bold
-          border-double border-8 ${theme.border}
-        `}
+        class="block mx-auto my-4 p-4 text-xl font-bold border-double border-8 {theme.border}"
         type="submit"
       >
         Set preference
@@ -85,11 +81,7 @@
     </form>
     <button
       type="button"
-      class="{`
-        block mx-auto my-4 p-4
-        text-xl font-bold
-        border-double border-8 border-black
-      `}"
+      class="block mx-auto my-4 p-4 text-xl font-bold border-double border-8 border-black"
       on:click={confirmDelete}
     >
       Clear All Data
@@ -133,7 +125,7 @@
   .badge {
     line-height: 2.125;
     text-shadow: 2px 2px black;
-    box-shadow: inset 0px 0px 6px 7px currentColor, 0 0 6px 0.65rem black;
+    box-shadow: inset 0px 0px 6px 7px currentColor, 0 0 8px 0.35rem black;
   }
   .starOuter::after, .starOuter::before,
   .starInner::after, .starInner::before {
