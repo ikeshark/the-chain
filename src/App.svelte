@@ -1,7 +1,7 @@
 <script>
 	import { onMount } from 'svelte';
 	import { scale } from 'svelte/transition';
-	import { bounceOut, quadIn } from 'svelte/easing';
+	import { backInOut } from 'svelte/easing';
 
 	import Tailwindcss from './Tailwindcss.svelte';
 	import EditChain from './EditChain.svelte';
@@ -9,6 +9,7 @@
 	import User from './User.svelte';
 	import Calendar from './Calendar.svelte';
 	import Toast from './Toast.svelte';
+	import Nav from './Nav.svelte';
 
 	let isNav = false;
 	let isFirstTime = true;
@@ -107,11 +108,11 @@
 	$: isFuture = (new Date().getDate() < day.getDate());
 	$: if (tasks.length) localStorage.setItem('tasks', JSON.stringify(tasks));
 
-	function changeTab(e) {
+	function changeTab({ detail }) {
 		// isSubmitted is used to trigger animations right after submit
 		//// once they navigate away from page with animations we want to not trigger anymore
 		isSubmitted = false;
-		tab = e.target.value || e.target.parentNode.value;
+		tab = detail.value;
 		isNav = false;
 	}
 	function toggleComplete({ detail }) {
@@ -235,58 +236,28 @@
 <Tailwindcss />
 
 <div class="mainWrapper p-2 h-screen mx-auto md:flex relative overflow-hidden {theme.bg}">
-	<nav
-		class="mobileNav {!isNav && 'hidden'} md:block z-10 fixed rounded-full md:rounded-none {theme.invertBg} border-4 border-solid {theme.invertBorder} shadow-lg"
-		in:scale={{ start: 0.2 }}
-		out:scale={{ easing: quadIn, start: 0.2, duration: 200 }}
-	>
-		<button
-			type="button" value="today"
-			on:click={changeTab}
-			class="menuBtn today font-bold md:my-4"
-		>
-			<span class="hidden md:block leading-tight">HOME</span>
-			<span class="menuIcon">🏠</span>
-		</button>
-		<button
-			type="button" value="edit"
-			on:click={changeTab}
-			class="menuBtn edit font-bold md:my-4"
-		>
-			<span class="hidden md:block leading-tight">EDIT CHAIN</span>
-			<span class="menuIcon">✏️</span>
-		</button>
-		<button
-			type="button" value="calendar"
-			on:click={changeTab}
-			class="menuBtn calendar font-bold md:my-4"
-		>
-			<span class="hidden md:block leading-tight">YOUR HISTORY</span>
-			<span class="menuIcon">📅</span>
-		</button>
-		<button
-			type="button" value="user"
-			on:click={changeTab}
-			class="menuBtn user font-bold md:my-4"
-		>
-			<span class="hidden md:block leading-tight">BADGES AND SETTINGS</span>
-			<span class="menuIcon">👤</span>
-		</button>
-	</nav>
-	<div class="md:px-4 w-full">
-		<h1 class={`text-3xl mb-2 text-center ${theme.text}`}>Don’t Break the Chain</h1>
-		<div class={`flex items-center justify-center mb-4 ${theme.text}`}>
-			<div class="chain"></div>
-			<div class="chain"></div>
-			<div class="chain"></div>
-			<div class="chain"></div>
-			<div class="chain"></div>
-			<div class="chain"></div>
-			<div class="chain"></div>
-		</div>
+	<Nav
+		isMobile={false}
+		on:changeTab={changeTab}
+		{theme}
+		{tab}
+	/>
+	<div class="grid md:px-4 w-full">
+		<header>
+			<h1 class="text-3xl mb-2 text-center {theme.text}">Don’t Break the Chain</h1>
+			<div class="flex items-center justify-center mb-4 {theme.text}">
+				<div class="chain"></div>
+				<div class="chain"></div>
+				<div class="chain"></div>
+				<div class="chain"></div>
+				<div class="chain"></div>
+				<div class="chain"></div>
+				<div class="chain"></div>
+			</div>
+		</header>
 
 		{#if tab === 'today'}
-			<div in:scale={{delay: 700}} out:scale>
+			<main in:scale={{delay: 200, easing: backInOut }} out:scale>
 				<Today
 					{day}
 		      {currentStreak}
@@ -298,7 +269,7 @@
 					{theme}
 					on:toggleComplete={toggleComplete}
 		    />
-			</div>
+			</main>
 			{#if !isFuture}
 				<button
 				  class="absolute bottom-0 left-0 m-4 border-gray-800 border-solid bg-gray-200 py-1 px-3 text-2xl font-bold rounded-lg border-2"
@@ -308,20 +279,20 @@
 				</button>
 			{/if}
 		{:else if tab === 'edit'}
-			<div in:scale={{delay: 600}} out:scale>
+			<main in:scale={{delay: 200, easing: backInOut }} out:scale>
 				<EditChain
 					{theme}
 					{isFirstTime}
 					{tasks}
 					on:submitChain={submitChain}
 				/>
-			</div>
+			</main>
 		{:else if tab === 'calendar'}
-			<div in:scale={{delay: 600}} out:scale>
+			<main in:scale={{delay: 200, easing: backInOut }} out:scale>
 				<Calendar {theme} {isSubmitted} {isFuture} {day} />
-			</div>
+			</main>
 		{:else if tab === 'user'}
-			<div in:scale={{delay: 600}} out:scale>
+			<main in:scale={{delay: 200, easing: backInOut }} out:scale>
 				<User
 					{badges}
 					{themes}
@@ -331,7 +302,7 @@
 					on:setTheme={setTheme}
 					on:changeTheme={changeTheme}
 				/>
-			</div>
+			</main>
 		{/if}
 	</div>
 </div>
@@ -345,6 +316,15 @@
 	</button>
 {/if}
 
+{#if isNav}
+	<Nav
+		isMobile={true}
+		on:changeTab={changeTab}
+		{theme}
+		{tab}
+	/>
+{/if}
+
 {#if toasts.length}
 	<div class="fixed top-0 left-0 mt-2 w-full">
 		{#each toasts as { id, message }}
@@ -353,52 +333,15 @@
 	</div>
 {/if}
 
-
 <style>
 	@keyframes spin {
 		from {transform: rotateX(0deg)}
 		to {transform: rotateX(180deg)}
 	}
-	.menuBtn {
-		position: absolute;
-	}
-	.menuIcon {
-		font-size: 2.5rem;
-    border: 2px solid black;
-    border-radius: 50%;
-    width: 3rem;
-    height: 3rem;
-    background-color: white;
-	}
 
-	.today { top: 10rem; left: 1rem; }
-	.edit { top: 5.4rem; left: 2.1rem; }
-	.calendar { top: 2rem; left: 5.6rem; }
-	.user { top: .5rem; left: 10rem; }
-
-	.mobileNav {
-		width: 25rem;
-		height: 25rem;
-		bottom: -11rem;
-		right: -11rem;
-	}
 	@media (min-width: 768px) {
 		.mainWrapper {
-			max-width: 600px;
-		}
-		.mobileNav {
-			position:static;
-			height: 100%;
-			width: 140px;
-		}
-		.menuBtn {
-			position: relative;
-			display: block;
-			top: 0; right: 0; bottom: 0; left: 0;
-			border: none;
-			width: 120px;
-			margin-top: 1rem;
-			margin-bottom: 1rem;
+			max-width: 745px;
 		}
 	}
 	.chain {
@@ -407,6 +350,14 @@
 		height: 25px;
 		border-radius: 8px;
 	}
+	.grid {
+		display: grid;
+		grid-template-areas:
+			'header'
+			'main';
+	}
 	.chain:nth-of-type(odd) {animation: spin 1 2s linear}
 	.chain:nth-of-type(even) {animation: spin 1 2s 1s linear; height: 15px; margin: 0 -14px;}
+	main { grid-area: main; }
+	header { grid-area: header;}
 </style>
