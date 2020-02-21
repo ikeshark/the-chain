@@ -14,6 +14,7 @@
   let visibleMonth = [];
   let month = 0;
   let year = 0;
+  let isAnimating = false;
 
   if (localStorage.chainHistory) chainHistory = JSON.parse(localStorage.getItem('chainHistory'));
   if (localStorage.history) history = JSON.parse(localStorage.getItem('history'));
@@ -28,6 +29,13 @@
   $: isNextMonth = month !== 11 ?
     !!history[year][month + 1] : !!history[year + 1];
 
+  function changeMonth() {
+    isAnimating = true;
+    setTimeout(() => {
+      isAnimation = false;
+      visibleMonth = populateMonth();
+    }, 250)
+  }
   function showPrevMonth() {
     if (month) {
       month = month - 1;
@@ -35,7 +43,7 @@
       month = 11;
       year = year - 1;
     }
-    visibleMonth = populateMonth();
+    changeMonth();
   }
   function showNextMonth() {
     if (month !== 11) {
@@ -44,7 +52,7 @@
       month = 0;
       year = year + 1;
     }
-    visibleMonth = populateMonth();
+    changeMonth();
   }
 
   function populateMonth() {
@@ -126,7 +134,7 @@
   }
 </script>
 
-<div class={`${theme.text} text-center`}>
+<div class="{theme.text} text-center">
   <div class="flex justify-center items-center">
     <h2 class="text-4xl mr-8">Your History</h2>
     <p class="rounded-full shadow w-16 h-16 text-sm relative halo {isSubmitted && 'animateRotate'}">
@@ -135,8 +143,8 @@
     </p>
   </div>
   {#if numRecDays}
-    <div class="rounded-lg">
-      <h3 class={`text-2xl text-center ${theme.text}`}>{monthName} {year}</h3>
+    <div class="rounded-lg transition-sm {isAnimating && 'scale-xs'}">
+      <h3 class="text-2xl text-center {theme.text}">{monthName} {year}</h3>
       <div class="monthGrid mb-4">
         {#each weekdays as weekday}
           <div style="grid-column: {weekday}">
@@ -196,7 +204,7 @@
 {#if !!detail}
   <Modal on:closeModal={closeModal}>
     <div class="{theme.invertBg} {theme.invertBorder} border-2 p-2 shadow-lg overflow-y-scroll w-10/12 max-w-500 shadow-lg">
-      <h2 class={`text-2xl text-center mb-2 ${theme.invertText}`}>
+      <h2 class="text-2xl text-center mb-2 {theme.invertText}">
         Version: {detail.version}
       </h2>
       <ul>
@@ -216,6 +224,8 @@
 {/if}
 
 <style>
+  .transition-sm {transition: 0.3s transform;}
+  .scale-xs {transform: scale(0.25)}
   .hasDetail {
     --width: 5px;
     --bg: rgba(255,255,255,0.4);
