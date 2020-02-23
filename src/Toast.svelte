@@ -12,8 +12,6 @@
     if (to) clearTimeout(to);
     dispatch('deleteToast', { id })
   }
-
-
 </script>
 
 <div
