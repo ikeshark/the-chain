@@ -32,9 +32,9 @@
   function changeMonth() {
     isAnimating = true;
     setTimeout(() => {
-      isAnimation = false;
+      isAnimating = false;
       visibleMonth = populateMonth();
-    }, 250)
+    }, 300)
   }
   function showPrevMonth() {
     if (month) {
@@ -105,9 +105,16 @@
 
     return [newBegDates, newEndDates];
   }
-
-  function isCompletedStyles(isCompleted) {
-    let submittedClass = isSubmitted ? ' animatePop' : '';
+  function yesterdayEpoch(epoch) {
+    const date = new Date(epoch);
+    return date.setDate(date.getDate() -1);
+  }
+  function isCompletedStyles(isCompleted, epoch) {
+    let submittedClass = '';
+    // if day was just submitted and the day is the last submitted day
+    if (isSubmitted && epoch === yesterdayEpoch(day)) {
+      submittedClass = ' animatePop';
+    }
     if (isCompleted === true) return 'bg-green-500' + submittedClass
     else if (isCompleted === false) return 'bg-red-600' + submittedClass
     else if (isCompleted === null) return 'bg-gray-500'
@@ -138,7 +145,7 @@
   <div class="flex justify-center items-center">
     <h2 class="text-4xl mr-8">Your History</h2>
     <p class="rounded-full shadow w-16 h-16 text-sm relative halo {isSubmitted && 'animateRotate'}">
-      <span class="text-3xl block -mb-3">{numRecDays}</span>
+      <span class="{(numRecDays > 99) ? 'text-2xl mt-2' : 'text-3xl'} block -mb-3">{numRecDays}</span>
       days
     </p>
   </div>
@@ -146,21 +153,22 @@
     <div class="rounded-lg transition-sm {isAnimating && 'scale-xs'}">
       <h3 class="text-2xl text-center {theme.text}">{monthName} {year}</h3>
       <div class="monthGrid mb-4">
-        {#each weekdays as weekday}
-          <div style="grid-column: {weekday}">
+        {#each weekdays as weekday, i}
+          <div style="grid-column: {i + 1}">
             {weekday}
           </div>
         {/each}
-        {#each visibleMonth as {epoch, weekday, isCompleted, day}}
+        {#each visibleMonth as {epoch, weekday, isCompleted, day}, i}
+          <!-- if a date belongs to chain history, make it a button  -->
           {#if chainHistory.map(x => x.startDay).indexOf(epoch) !== -1}
             <button
               id={epoch}
               type="button"
               on:click={showDetail}
               style="grid-column: {weekday === 0 ? 7 : weekday}"
-              class="hasDetail text-center relative text-lg text-black font-bold rounded-sm {isCompletedStyles(isCompleted)}">
+              class="hasDetail text-center relative text-lg text-black font-bold rounded-sm {isCompletedStyles(isCompleted, epoch)}">
               {day}
-              <span class="block text-3xl -mt-2">
+              <span class="block text-3xl -mt-2 md:text-2xl">
                 {@html isCompletedContent(isCompleted)}
               </span>
             </button>
@@ -168,39 +176,34 @@
             <div
               id={epoch}
               style="grid-column: {weekday === 0 ? 7 : weekday}"
-              class="text-center text-lg text-black font-bold rounded-sm {isCompletedStyles(isCompleted)}">
+              class="text-center text-lg text-black font-bold rounded-sm {isCompletedStyles(isCompleted, epoch)}">
               {day}
-              <span class="block text-3xl -mt-2">
+              <span class="block text-3xl -mt-2 md:text-2xl">
                 {@html isCompletedContent(isCompleted)}
               </span>
             </div>
           {/if}
         {/each}
       </div> <!-- end grid -->
-      <div class="fixed bottom-0 mb-3 pageBtns">
-        {#if isPrevMonth}
-          <button
-            on:click={showPrevMonth}
-            class="px-2 py-1 font-bold text-2xl border-white mr-6"
-          >
-            &larr;
-          </button>
-        {/if}
-        {#if isNextMonth}
-          <button
-            on:click={showNextMonth}
-            class="px-2 py-1 font-bold text-2xl border-white"
-          >
-            &rarr;
-          </button>
-        {/if}
-      </div>
     </div>
   {:else}
     <h2 class="{theme.text} text-xl my-4">YOU AINT GOT NO HISTORY</h2>
   {/if}
 </div>
-
+<div class="absolute bottom-0 mb-1 pageBtns {theme.text}">
+  <button
+    on:click={showPrevMonth}
+    class="px-2 py-1 font-bold text-2xl border-white mr-6 {!isPrevMonth && 'invisible'}"
+  >
+    &larr;
+  </button>
+  <button
+    on:click={showNextMonth}
+    class="px-2 py-1 font-bold text-2xl border-white {!isNextMonth && 'invisible'}"
+  >
+    &rarr;
+  </button>
+</div>
 {#if !!detail}
   <Modal on:closeModal={closeModal}>
     <div class="{theme.invertBg} {theme.invertBorder} border-2 p-2 shadow-lg overflow-y-scroll w-10/12 max-w-500 shadow-lg">
@@ -238,7 +241,7 @@
     90% {transform: scale(1.5)}
     100% {transform: scale(1)}
   }
-  .animatePop:last-of-type {
+  .animatePop {
 		animation: popOut 2.2s ease-out;
 	}
   .pageBtns {
@@ -267,8 +270,6 @@
   .monthGrid {
     display: grid;
     grid-gap: 3px;
-    /* i need to change this for i18n purposes */
-    grid-template-columns:
-      [Mon-start] 1fr [Mon-end Tue-start] 1fr [Tue-end Wed-start] 1fr [Wed-end Thu-start] 1fr [Thu-end Fri-start] 1fr [Fri-end Sat-start] 1fr [Sat-end Sun-start] 1fr [Sun-end];
+    grid-template-columns: repeat(7, 1fr);
   }
 </style>
