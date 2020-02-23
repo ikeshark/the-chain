@@ -14,6 +14,7 @@
 	let isNav = false;
 	let isFirstTime = true;
 	let isSubmitted = false;
+	let isIntro = true;
 
 	let tab = 'today';
 
@@ -29,8 +30,8 @@
 
 	const themes = {
 		day: {
-			bg: 'bg-orange-200',
-			border: 'border-red-900',
+			bg: 'bg-orange-100',
+			border: 'border-red-800',
 			text: 'text-red-800',
 			invertBg: 'bg-red-800',
 			invertBorder: 'border-orange-500',
@@ -47,21 +48,21 @@
 			name:'night'
 		},
 		green: {
-			bg: 'bg-green-800',
+			bg: 'bg-green-900',
 			border: 'border-yellow-400',
 			text: 'text-yellow-300',
-			invertBg: 'bg-yellow-300',
+			invertBg: 'bg-green-200',
 			invertBorder: 'border-green-700',
-			invertText: 'text-green-800',
+			invertText: 'text-green-900',
 			name:'green'
 		},
 		indigo: {
 			bg: 'bg-indigo-800',
 			border: 'border-indigo-200',
 			text: 'text-purple-300',
-			invertBg: 'bg-purple-300',
-			invertBorder: 'border-indigo-700',
-			invertText: 'text-indigo-800',
+			invertBg: 'bg-indigo-300',
+			invertBorder: 'border-blue-700',
+			invertText: 'text-blue-900',
 			name:'indigo'
 		},
 	}
@@ -70,6 +71,7 @@
 	let theme = themes.night;
 
 	onMount(() => {
+		setTimeout(() => isIntro = false, 3000);
 		if (localStorage.tasks) {
 			isFirstTime = false;
 			tasks = JSON.parse(localStorage.getItem('tasks'));
@@ -171,6 +173,7 @@
 			return { ...task, isCompleted: false }
 		});
 		isSubmitted = true;
+		setTimeout(() => isSubmitted = false, 3000);
 	}
 	function submitChain(e) {
 		tasks = e.detail.chain;
@@ -242,7 +245,7 @@
 		{theme}
 		{tab}
 	/>
-	<div class="grid md:px-4 w-full">
+	<div class="grid relative w-full h-full md:px-4">
 		<header>
 			<h1 class="text-3xl mb-2 text-center {theme.text}">Don’t Break the Chain</h1>
 			<div class="flex items-center justify-center mb-4 {theme.text}">
@@ -257,7 +260,7 @@
 		</header>
 
 		{#if tab === 'today'}
-			<main in:scale={{delay: 200, easing: backInOut }} out:scale>
+			<main in:scale={{start: 0.3, delay: 200, easing: backInOut }} out:scale>
 				<Today
 					{day}
 		      {currentStreak}
@@ -279,7 +282,7 @@
 				</button>
 			{/if}
 		{:else if tab === 'edit'}
-			<main in:scale={{delay: 200, easing: backInOut }} out:scale>
+			<main in:scale={{start: 0.3, delay: 200, easing: backInOut }} out:scale>
 				<EditChain
 					{theme}
 					{isFirstTime}
@@ -288,11 +291,15 @@
 				/>
 			</main>
 		{:else if tab === 'calendar'}
-			<main in:scale={{delay: 200, easing: backInOut }} out:scale>
+			<main
+				class="relative"
+				in:scale={{delay: 200, easing: backInOut }}
+				out:scale
+			>
 				<Calendar {theme} {isSubmitted} {isFuture} {day} />
 			</main>
 		{:else if tab === 'user'}
-			<main in:scale={{delay: 200, easing: backInOut }} out:scale>
+			<main in:scale={{start: 0.3, delay: 200, easing: backInOut }} out:scale>
 				<User
 					{badges}
 					{themes}
@@ -304,9 +311,18 @@
 				/>
 			</main>
 		{/if}
-	</div>
-</div>
-
+		{#if toasts.length && !isIntro}
+			<div
+				transition:scale="{{ duration: 550, easing: backInOut }}"
+				class="absolute top-0 left-0 mt-2 w-full"
+			>
+				{#each toasts as { id, message }}
+					<Toast {id} {message} {theme} on:deleteToast={deleteToast} />
+				{/each}
+			</div>
+		{/if}
+	</div> <!--end class grid -->
+</div> <!--end class mainWrapper -->
 
 {#if !isFirstTime}
 	<button
@@ -323,14 +339,6 @@
 		{theme}
 		{tab}
 	/>
-{/if}
-
-{#if toasts.length}
-	<div class="fixed top-0 left-0 mt-2 w-full">
-		{#each toasts as { id, message }}
-			<Toast {id} {message} {theme} on:deleteToast={deleteToast} />
-		{/each}
-	</div>
 {/if}
 
 <style>
@@ -352,6 +360,7 @@
 	}
 	.grid {
 		display: grid;
+		grid-template-rows: auto 1fr;
 		grid-template-areas:
 			'header'
 			'main';
