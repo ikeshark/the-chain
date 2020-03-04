@@ -3,8 +3,9 @@
   import Confirm from './Confirm.svelte';
   const dispatch = createEventDispatcher();
 
+  import { themes }  from '../stores.js'
+
   export let theme;
-  export let themes;
   export let longestStreak;
   export let badges;
   export let isSubmitted;

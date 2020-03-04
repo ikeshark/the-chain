@@ -3,13 +3,15 @@
 	import { scale } from 'svelte/transition';
 	import { backInOut } from 'svelte/easing';
 
-	import Tailwindcss from './Tailwindcss.svelte';
-	import EditChain from './EditChain.svelte';
-	import Today from './Today.svelte';
-	import User from './User.svelte';
-	import Calendar from './Calendar.svelte';
-	import Toast from './Toast.svelte';
-	import Nav from './Nav.svelte';
+	import Tailwindcss from './components/Tailwindcss.svelte';
+	import EditChain from './components/EditChain.svelte';
+	import Today from './components/Today.svelte';
+	import User from './components/User.svelte';
+	import Calendar from './components/Calendar.svelte';
+	import Toast from './components/Toast.svelte';
+	import Nav from './components/Nav.svelte';
+
+	import { theme, themeName, day } from './stores.js'
 
 	let isNav = false;
 	let isFirstTime = true;
@@ -18,7 +20,6 @@
 
 	let tab = 'today';
 
-	let day = formatDate(new Date().getTime());
 	let tasks = [];
 	let toasts = [];
 	let currentStreak = 0;
@@ -27,48 +28,6 @@
 	let toastId = 0;
 
 	const badges = [365, 180, 90, 28, 14, 7, 1];
-
-	const themes = {
-		day: {
-			bg: 'bg-orange-100',
-			border: 'border-red-800',
-			text: 'text-red-800',
-			invertBg: 'bg-red-800',
-			invertBorder: 'border-orange-500',
-			invertText: 'text-orange-200',
-			name: 'day',
-		},
-		night: {
-			bg: 'bg-gray-800',
-			border: 'border-blue-200',
-			text: 'text-blue-200',
-			invertBg: 'bg-blue-200',
-			invertBorder: 'border-blue-700',
-			invertText: 'text-gray-800',
-			name:'night'
-		},
-		green: {
-			bg: 'bg-green-900',
-			border: 'border-yellow-400',
-			text: 'text-yellow-300',
-			invertBg: 'bg-green-200',
-			invertBorder: 'border-green-700',
-			invertText: 'text-green-900',
-			name:'green'
-		},
-		indigo: {
-			bg: 'bg-indigo-800',
-			border: 'border-indigo-200',
-			text: 'text-purple-300',
-			invertBg: 'bg-indigo-300',
-			invertBorder: 'border-blue-700',
-			invertText: 'text-blue-900',
-			name:'indigo'
-		},
-	}
-	// optional night invertBorder = border-gray-500
-	// optional night bg = bg-blue-900
-	let theme = themes.night;
 
 	onMount(() => {
 		setTimeout(() => isIntro = false, 3000);
@@ -81,7 +40,7 @@
 			version = chainHistory[chainHistory.length - 1].version;
 
 			if (localStorage.currentDay) {
-				day = new Date(parseInt(localStorage.currentDay))
+				day.set(new Date(parseInt(localStorage.currentDay)));
 
 				if (new Date().getDate() > day.getDate()) {
 					createToast({ detail: { message:
@@ -97,7 +56,7 @@
 				longestStreak = parseInt(localStorage.getItem('longestStreak'));
 			}
 			if (localStorage.theme) {
-				theme = themes[localStorage.getItem('theme')]
+				themeName.set(localStorage.getItem('theme'))
 			}
 
 		} else {
@@ -107,7 +66,7 @@
 	});
 
 	$: tasksLeft = tasks.filter(task => task.isCompleted === false).length;
-	$: isFuture = (new Date().getDate() < day.getDate());
+	$: isFuture = (new Date().getTime() < $day.getTime());
 	$: if (tasks.length) localStorage.setItem('tasks', JSON.stringify(tasks));
 
 	function changeTab({ detail }) {
@@ -134,11 +93,11 @@
 		isNav = !isNav;
 	}
 	function submitDay() {
-		const year = day.getFullYear();
-		const month = day.getMonth();
+		const year = $day.getFullYear();
+		const month = $day.getMonth();
 
 		const isCompleted = tasksLeft ? false : true;
-		const value = { day: day.getTime(), isCompleted };
+		const value = { day: $day.getTime(), isCompleted };
 
 		let history = {};
 		if (localStorage.history) {
@@ -157,10 +116,10 @@
 		}
 
 		currentStreak = isCompleted ? currentStreak + 1 : 0;
-		day = new Date(day.setDate(day.getDate() + 1))
+		day.update(d => new Date(d.setDate(d.getDate() + 1)));
 
 		localStorage.setItem('history', JSON.stringify(history));
-		localStorage.setItem('currentDay', day.getTime());
+		localStorage.setItem('currentDay', $day.getTime());
 		localStorage.setItem('currentStreak', currentStreak);
 		tab = 'calendar';
 		if (currentStreak > longestStreak) {
@@ -184,24 +143,24 @@
 			version = 1;
 			chainHistory = [{
 				version,
-				startDay: day.getTime(),
+				startDay: $day.getTime(),
 				tasks: tasks.map(task => task.title)
 			}];
 		} else if (localStorage.chainHistory) {
 			chainHistory = JSON.parse(localStorage.getItem('chainHistory'))
 			// if a chain is updated twice in a day
 			//// don't update version, overwrite tasks
-			if (chainHistory[chainHistory.length - 1].startDay === day.getTime()) {
+			if (chainHistory[chainHistory.length - 1].startDay === $day.getTime()) {
 				const historyItem = chainHistory[chainHistory.length - 1];
 				historyItem.tasks = tasks.map(task => task.title);
-				chainHistory = chainHistory.filter(item => item.startDay !== day.getTime());
+				chainHistory = chainHistory.filter(item => item.startDay !== $day.getTime());
 				chainHistory = [...chainHistory, historyItem];
 			} else {
 	 			version = currentStreak ? version + 0.01 : version + 1;
 	 			version = parseFloat(version.toFixed(2));
 	 			chainHistory = [...chainHistory, {
 	 				version,
-	 				startDay: day.getTime(),
+	 				startDay: $day.getTime(),
 	 				tasks: tasks.map(task => task.title)
 	 			}]
 			}
@@ -210,8 +169,8 @@
 		tab = 'today';
 	}
 
-	function changeTheme(e) {
-		theme = themes[e.detail.newTheme];
+	function changeTheme({ detail }) {
+		themeName.set(detail.newTheme);
 	}
 	function setTheme(e) {
 		// should i see if theme has changed?
@@ -228,27 +187,22 @@
 		toasts = toasts.filter(toast => toast.id !== e.detail.id);
 	}
 
-	function formatDate(epoch) {
-		const date = new Date(epoch);
-		return new Date(date.setHours(0, 0, 0, 0));
-	}
-
 
 </script>
 
 <Tailwindcss />
 
-<div class="mainWrapper p-2 h-screen mx-auto md:flex relative overflow-hidden {theme.bg}">
+<div class="mainWrapper p-2 h-screen mx-auto md:flex relative overflow-hidden {$theme.bg}">
 	<Nav
 		isMobile={false}
 		on:changeTab={changeTab}
-		{theme}
+		{$theme}
 		{tab}
 	/>
 	<div class="grid relative w-full h-full md:px-4">
 		<header>
-			<h1 class="text-3xl mb-2 text-center {theme.text}">Don’t Break the Chain</h1>
-			<div class="flex items-center justify-center mb-4 {theme.text}">
+			<h1 class="text-3xl mb-2 text-center {$theme.text}">Don’t Break the Chain</h1>
+			<div class="flex items-center justify-center mb-4 {$theme.text}">
 				<div class="chain"></div>
 				<div class="chain"></div>
 				<div class="chain"></div>
@@ -262,14 +216,14 @@
 		{#if tab === 'today'}
 			<main in:scale={{start: 0.3, delay: 200, easing: backInOut }} out:scale>
 				<Today
-					{day}
+					{$day}
 		      {currentStreak}
 		      {longestStreak}
 					{tasks}
 					{tasksLeft}
 					{version}
 					{isFuture}
-					{theme}
+					{$theme}
 					on:toggleComplete={toggleComplete}
 		    />
 			</main>
@@ -284,7 +238,7 @@
 		{:else if tab === 'edit'}
 			<main in:scale={{start: 0.3, delay: 200, easing: backInOut }} out:scale>
 				<EditChain
-					{theme}
+					{$theme}
 					{isFirstTime}
 					{tasks}
 					on:submitChain={submitChain}
@@ -296,14 +250,13 @@
 				in:scale={{delay: 200, easing: backInOut }}
 				out:scale
 			>
-				<Calendar {theme} {isSubmitted} {isFuture} {day} />
+				<Calendar {$theme} {isSubmitted} {isFuture} {$day} />
 			</main>
 		{:else if tab === 'user'}
 			<main in:scale={{start: 0.3, delay: 200, easing: backInOut }} out:scale>
 				<User
 					{badges}
-					{themes}
-					{theme}
+					{$theme}
 					{isSubmitted}
 					{longestStreak}
 					on:setTheme={setTheme}
@@ -317,7 +270,7 @@
 				class="absolute top-0 left-0 mt-2 w-full"
 			>
 				{#each toasts as { id, message }}
-					<Toast {id} {message} {theme} on:deleteToast={deleteToast} />
+					<Toast {id} {message} {$theme} on:deleteToast={deleteToast} />
 				{/each}
 			</div>
 		{/if}
@@ -336,7 +289,7 @@
 	<Nav
 		isMobile={true}
 		on:changeTab={changeTab}
-		{theme}
+		{$theme}
 		{tab}
 	/>
 {/if}
