@@ -40,9 +40,9 @@
 			version = chainHistory[chainHistory.length - 1].version;
 
 			if (localStorage.currentDay) {
-				day.set(new Date(parseInt(localStorage.currentDay)));
+				// day.set(new Date(parseInt(localStorage.currentDay)));
 
-				if (new Date().getDate() > day.getDate()) {
+				if (new Date().getDate() > $day.getDate()) {
 					createToast({ detail: { message:
 						'You are in the past'
 					} });
@@ -196,7 +196,6 @@
 	<Nav
 		isMobile={false}
 		on:changeTab={changeTab}
-		{$theme}
 		{tab}
 	/>
 	<div class="grid relative w-full h-full md:px-4">
@@ -216,14 +215,12 @@
 		{#if tab === 'today'}
 			<main in:scale={{start: 0.3, delay: 200, easing: backInOut }} out:scale>
 				<Today
-					{$day}
 		      {currentStreak}
 		      {longestStreak}
 					{tasks}
 					{tasksLeft}
 					{version}
 					{isFuture}
-					{$theme}
 					on:toggleComplete={toggleComplete}
 		    />
 			</main>
@@ -238,7 +235,6 @@
 		{:else if tab === 'edit'}
 			<main in:scale={{start: 0.3, delay: 200, easing: backInOut }} out:scale>
 				<EditChain
-					{$theme}
 					{isFirstTime}
 					{tasks}
 					on:submitChain={submitChain}
@@ -250,13 +246,12 @@
 				in:scale={{delay: 200, easing: backInOut }}
 				out:scale
 			>
-				<Calendar {$theme} {isSubmitted} {isFuture} {$day} />
+				<Calendar {isSubmitted} {isFuture} />
 			</main>
 		{:else if tab === 'user'}
 			<main in:scale={{start: 0.3, delay: 200, easing: backInOut }} out:scale>
 				<User
 					{badges}
-					{$theme}
 					{isSubmitted}
 					{longestStreak}
 					on:setTheme={setTheme}
@@ -289,7 +284,6 @@
 	<Nav
 		isMobile={true}
 		on:changeTab={changeTab}
-		{$theme}
 		{tab}
 	/>
 {/if}

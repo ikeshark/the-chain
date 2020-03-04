@@ -53,11 +53,55 @@ function formatDate(epoch) {
   const date = new Date(epoch);
   return new Date(date.setHours(0, 0, 0, 0));
 }
-export const day = writable(formatDate(new Date().getTime()));
+export const day = writable(
+  localStorage.getItem('currentDay') ?
+    new Date(parseInt(localStorage.currentDay)) :
+    formatDate(new Date().getTime())
+);
 
 // ......
 // TASKS
 // ......
-export const tasks = writable(JSON.parse(localStorage.getItem('tasks')) || []);
+function createTask() {
+  const { subscribe, set, update } = writable(
+    JSON.parse(localStorage.getItem('tasks')) || []
+  );
 
+  return {
+    subscribe,
+    set,
+    update,
+    reset: () => update(tasks => tasks.map(task => {
+      return { ...task, isCompleted: false }
+    }))
+  }
+}
+export const tasks = createTask();
+
+// .....
+// MISC
+// .....
 export const isFirstTime = writable(true);
+export const isSubmitted = writable(true);
+
+// https://fireship.io/snippets/custom-svelte-stores/
+// https://higsch.me/2019/06/22/2019-06-21-svelte-local-storage/
+
+const createPersistedStore = (key, defaultValue) => {
+	const initialJson = localStorage.getItem(key)
+	const initialValue = initialJson ? JSON.parse(initialJson) : defaultValue
+	const store = writable(initialValue)
+
+	const subscribe = fn =>
+		store.subscribe(current => {
+			localStorage.setItem(key, JSON.stringify(current))
+			return fn(current)
+		})
+
+	return {
+		subscribe,
+		set: store.set
+	}
+}
+
+export const store = createPersistedStore("dogs", {visible: false, dogs: 0})

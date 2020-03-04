@@ -1,14 +1,12 @@
 <script>
   import Modal from './Modal.svelte';
+  import { theme, day } from '../stores.js';
 
-  export let theme;
   export let isSubmitted;
   export let isFuture;
-  export let day;
 
   let history = {};
-  let chainHistory = [];
-  let dataObj;
+  let chainHistory = localStorage.getItem('chainHistory') || [];
   let showModal = false;
   let detail = null;
   let visibleMonth = [];
@@ -16,18 +14,31 @@
   let year = 0;
   let isAnimating = false;
 
-  if (localStorage.chainHistory) chainHistory = JSON.parse(localStorage.getItem('chainHistory'));
-  if (localStorage.history) history = JSON.parse(localStorage.getItem('history'));
+  let isPrevMonth;
+  let monthName;
+  let isNextMonth;
 
-  const numRecDays = history.numRecDays || 0;
+  let numRecDays = 0;
+
   const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
   const weekdays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
-  $: monthName = months[month];
-  $: isPrevMonth = month ?
-    !!history[year][month - 1] : !!history[year - 1];
-  $: isNextMonth = month !== 11 ?
-    !!history[year][month + 1] : !!history[year + 1];
+  if (localStorage.history) {
+    history = JSON.parse(localStorage.getItem('history'));
+    numRecDays = history.numRecDays;
+    if (numRecDays) {
+      let lastDate = new Date($day.getTime());
+      if (isFuture) lastDate.setDate(lastDate.getDate() -1);
+      year = lastDate.getFullYear();
+      month = lastDate.getMonth();
+      visibleMonth = populateMonth();
+    }
+    $: monthName = months[month];
+    $: isPrevMonth = month ?
+      !!history[year][month - 1] : !!history[year - 1];
+    $: isNextMonth = month !== 11 ?
+      !!history[year][month + 1] : !!history[year + 1];
+  }
 
   function changeMonth() {
     isAnimating = true;
@@ -36,6 +47,7 @@
       visibleMonth = populateMonth();
     }, 300)
   }
+
   function showPrevMonth() {
     if (month) {
       month = month - 1;
@@ -45,6 +57,7 @@
     }
     changeMonth();
   }
+
   function showNextMonth() {
     if (month !== 11) {
       month = month + 1;
@@ -72,6 +85,7 @@
       return value;
     });
   }
+
   function fillOutMonth(epochA, epochZ) {
     // start of month is always 1
     // if start date isn't 1, simply make an array with rest of values
@@ -105,43 +119,41 @@
 
     return [newBegDates, newEndDates];
   }
+
   function yesterdayEpoch(epoch) {
     const date = new Date(epoch);
     return date.setDate(date.getDate() -1);
   }
+
   function isCompletedStyles(isCompleted, epoch) {
     let submittedClass = '';
     // if day was just submitted and the day is the last submitted day
-    if (isSubmitted && epoch === yesterdayEpoch(day)) {
+    if (isSubmitted && epoch === yesterdayEpoch($day)) {
       submittedClass = ' animatePop';
     }
     if (isCompleted === true) return 'bg-green-500' + submittedClass
     else if (isCompleted === false) return 'bg-red-600' + submittedClass
     else if (isCompleted === null) return 'bg-gray-500'
   }
+
   function isCompletedContent(isCompleted) {
     if (isCompleted === true) return '&check;'
     else if (isCompleted === false) return '&times;'
     else if (isCompleted === null) return '&nbsp;'
   }
+
   function showDetail({ target }) {
     const id = parseInt(target.id || target.parentNode.id);
     detail = chainHistory.filter(item => item.startDay === id)[0];
   }
+
   function closeModal() {
     detail = null;
   }
 
-  if (numRecDays) {
-    let lastDate = new Date(day.getTime());
-    if (isFuture) lastDate.setDate(lastDate.getDate() -1);
-    year = lastDate.getFullYear();
-    month = lastDate.getMonth();
-    visibleMonth = populateMonth();
-  }
 </script>
 
-<div class="{theme.text} text-center">
+<div class="{$theme.text} text-center">
   <div class="flex justify-center items-center">
     <h2 class="text-4xl mr-8">Your History</h2>
     <p class="rounded-full shadow w-16 h-16 text-sm relative halo {isSubmitted && 'animateRotate'}">
@@ -151,7 +163,7 @@
   </div>
   {#if numRecDays}
     <div class="rounded-lg transition-sm {isAnimating && 'scale-xs'}">
-      <h3 class="text-2xl text-center {theme.text}">{monthName} {year}</h3>
+      <h3 class="text-2xl text-center {$theme.text}">{monthName} {year}</h3>
       <div class="monthGrid mb-4">
         {#each weekdays as weekday, i}
           <div style="grid-column: {i + 1}">
@@ -187,10 +199,10 @@
       </div> <!-- end grid -->
     </div>
   {:else}
-    <h2 class="{theme.text} text-xl my-4">YOU AINT GOT NO HISTORY</h2>
+    <h2 class="{$theme.text} text-xl my-4">YOU AINT GOT NO HISTORY</h2>
   {/if}
 </div>
-<div class="absolute bottom-0 mb-1 pageBtns {theme.text}">
+<div class="absolute bottom-0 mb-1 pageBtns {$theme.text}">
   <button
     on:click={showPrevMonth}
     class="px-2 py-1 font-bold text-2xl border-white mr-6 {!isPrevMonth && 'invisible'}"
@@ -206,16 +218,16 @@
 </div>
 {#if !!detail}
   <Modal on:closeModal={closeModal}>
-    <div class="{theme.invertBg} {theme.invertBorder} border-2 p-2 shadow-lg overflow-y-scroll w-10/12 max-w-500 shadow-lg">
-      <h2 class="text-2xl text-center mb-2 {theme.invertText}">
+    <div class="{$theme.invertBg} {$theme.invertBorder} border-2 p-2 shadow-lg overflow-y-scroll w-10/12 max-w-500 shadow-lg">
+      <h2 class="text-2xl text-center mb-2 {$theme.invertText}">
         Version: {detail.version}
       </h2>
       <ul>
         {#each detail.tasks as task}
           <li class={`
             py-1 px-2 mb-1 shadow-sm
-            border ${theme.border}
-            ${theme.text} ${theme.bg}
+            border ${$theme.border}
+            ${$theme.text} ${$theme.bg}
             text-xl last:mb-12
           `}>
             {task}

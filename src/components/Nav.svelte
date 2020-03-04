@@ -3,10 +3,12 @@
   import { backInOut } from 'svelte/easing';
 
   import { createEventDispatcher } from 'svelte';
+
+  import { theme } from '../stores.js';
+
   const dispatch = createEventDispatcher();
 
   export let isMobile;
-  export let theme;
   export let tab;
 
   function changeTab(e) {
@@ -15,7 +17,7 @@
 </script>
 
 <nav
-  class="{isMobile ? 'mobileNav rounded-full fixed' : 'hidden md:block desktopNav'} z-10 {theme.invertBg} border-4 border-solid {theme.invertBorder} shadow-lg"
+  class="{isMobile ? 'mobileNav rounded-full fixed' : 'hidden md:block desktopNav'} z-10 {$theme.invertBg} border-4 border-solid {$theme.invertBorder} shadow-lg"
   in:scale={{ start: 0.2, easing: backInOut }}
   out:scale={{ start: 0.2, easing: backInOut }}
 >
@@ -24,7 +26,7 @@
     on:click={changeTab}
     class="menuBtn block today font-bold"
   >
-    {#if !isMobile}<span class="leading-tight {theme.invertText}">HOME</span>{/if}
+    {#if !isMobile}<span class="leading-tight {$theme.invertText}">HOME</span>{/if}
     <span class="menuIcon block {tab === 'today' ? 'bg-white' : 'bg-gray-500'}">🏠</span>
   </button>
   <button
@@ -32,7 +34,7 @@
     on:click={changeTab}
     class="menuBtn block edit font-bold"
   >
-    {#if !isMobile}<span class="leading-tight {theme.invertText}">EDIT CHAIN</span>{/if}
+    {#if !isMobile}<span class="leading-tight {$theme.invertText}">EDIT CHAIN</span>{/if}
     <span class="menuIcon block {tab === 'edit' ? 'bg-white' : 'bg-gray-500'}">✏️</span>
   </button>
   <button
@@ -40,7 +42,7 @@
     on:click={changeTab}
     class="menuBtn block calendar font-bold"
   >
-    {#if !isMobile}<span class="leading-tight {theme.invertText}">HISTORY</span>{/if}
+    {#if !isMobile}<span class="leading-tight {$theme.invertText}">HISTORY</span>{/if}
     <span class="menuIcon block {tab === 'calendar' ? 'bg-white' : 'bg-gray-500'}">📅</span>
   </button>
   <button
@@ -48,7 +50,7 @@
     on:click={changeTab}
     class="menuBtn block user font-bold"
   >
-    {#if !isMobile}<span class="leading-tight {theme.invertText}">BADGES & SETTINGS</span>{/if}
+    {#if !isMobile}<span class="leading-tight {$theme.invertText}">BADGES & SETTINGS</span>{/if}
     <span class="menuIcon block {tab === 'user' ? 'bg-white' : 'bg-gray-500'}">👤</span>
   </button>
 </nav>

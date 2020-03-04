@@ -3,9 +3,8 @@
   import Confirm from './Confirm.svelte';
   const dispatch = createEventDispatcher();
 
-  import { themes }  from '../stores.js'
+  import { theme, themes }  from '../stores.js'
 
-  export let theme;
   export let longestStreak;
   export let badges;
   export let isSubmitted;
@@ -52,10 +51,10 @@
   </button>
 </nav>
 {#if tab === 'settings'}
-  <div class="{theme.invertBorder} border-2 p-2 shadow-lg z-10 {theme.invertBg} relative">
-  	<h2 class="{theme.invertText} text-2xl text-center">Themes</h2>
+  <div class="{$theme.invertBorder} border-2 p-2 shadow-lg z-10 {$theme.invertBg} relative">
+  	<h2 class="{$theme.invertText} text-2xl text-center">Themes</h2>
     <form
-      class="{theme.text} {theme.bg} p-2"
+      class="{$theme.text} {$theme.bg} p-2"
       on:submit|preventDefault={setTheme}
     >
       <div class="flex flex-col flex-wrap h-48">
@@ -74,7 +73,7 @@
       {/each}
       </div>
       <button
-        class="block mx-auto my-4 p-4 text-xl font-bold border-double border-8 {theme.border}"
+        class="block mx-auto my-4 p-4 text-xl font-bold border-double border-8 {$theme.border}"
         type="submit"
       >
         Set preference
@@ -97,12 +96,12 @@
     {/if}
   </div>
 {:else}
-  <div class="scroll overflow-y-scroll h-auto border-double border-8 {theme.border}">
+  <div class="scroll overflow-y-scroll h-auto border-double border-8 {$theme.border}">
     {#each myBadges as badge}
       <div class="starOuter relative mx-auto h-32 w-32 my-12 {isSubmitted && 'animate'}">
         <div class="starInner z-10 absolute top-0 left-0 w-full h-full flex items-center justify-center">
           <span
-            class="badge w-full h-full text-5xl z-10 rounded-full text-center {theme.invertBg} {theme.invertText} {theme.invertBorder} font-bold border-8 border-double"
+            class="badge w-full h-full text-5xl z-10 rounded-full text-center {$theme.invertBg} {$theme.invertText} {$theme.invertBorder} font-bold border-8 border-double"
             >
             {badge}
           </span>

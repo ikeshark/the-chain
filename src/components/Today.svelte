@@ -1,14 +1,13 @@
 <script>
 	import { createEventDispatcher } from 'svelte';
+	import { theme, day } from '../stores.js';
 
 	export let tasks;
 	export let currentStreak;
 	export let longestStreak;
 	export let tasksLeft;
-	export let day;
 	export let version;
 	export let isFuture;
-	export let theme;
 
 	const dispatch = createEventDispatcher();
 
@@ -18,7 +17,7 @@
     })
 	}
 </script>
-<div class="flex {theme.text}">
+<div class="flex {$theme.text}">
   <div class="w-1/2">
     <p>Current streak: {currentStreak}</p>
     <p class="mb-4">Longest streak: {longestStreak}</p>
@@ -35,9 +34,9 @@
 
 <div
   id="scroll"
-  class="{theme.invertBorder} border-2 p-2 shadow-lg overflow-y-scroll {theme.invertBg}">
-  <h2 class="text-2xl text-center mb-2 {theme.invertText}">
-    {day.toLocaleDateString('en', {
+  class="{$theme.invertBorder} border-2 p-2 shadow-lg overflow-y-scroll {$theme.invertBg}">
+  <h2 class="text-2xl text-center mb-2 {$theme.invertText}">
+    {$day.toLocaleDateString('en', {
 			month: 'long',
 			day: 'numeric',
 			weekday: 'long'
@@ -45,8 +44,8 @@
   </h2>
 
   {#each tasks as { title, id, isCompleted }}
-    <label 
-			class="py-1 px-2 mb-1 shadow-sm border {theme.border} {theme.text} {theme.bg} text-xl last:mb-12"
+    <label
+			class="py-1 px-2 mb-1 shadow-sm border {$theme.border} {$theme.text} {$theme.bg} text-xl last:mb-12"
 		>
     	{title}
 
