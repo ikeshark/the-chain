@@ -1,72 +1,27 @@
 <script>
   import Modal from './Modal.svelte';
-  import { theme, day } from '../stores.js';
-
-  export let isSubmitted;
-  export let isFuture;
-
-  let history = {};
-  let chainHistory = localStorage.getItem('chainHistory') || [];
-  let showModal = false;
-  let detail = null;
-  let visibleMonth = [];
-  let month = 0;
-  let year = 0;
-  let isAnimating = false;
-
-  let isPrevMonth;
-  let monthName;
-  let isNextMonth;
-
-  let numRecDays = 0;
+  import { theme, day, isSubmitted } from '../stores.js';
 
   const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
   const weekdays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
-  if (localStorage.history) {
-    history = JSON.parse(localStorage.getItem('history'));
-    numRecDays = history.numRecDays;
-    if (numRecDays) {
-      let lastDate = new Date($day.getTime());
-      if (isFuture) lastDate.setDate(lastDate.getDate() -1);
-      year = lastDate.getFullYear();
-      month = lastDate.getMonth();
-      visibleMonth = populateMonth();
-    }
-    $: monthName = months[month];
-    $: isPrevMonth = month ?
-      !!history[year][month - 1] : !!history[year - 1];
-    $: isNextMonth = month !== 11 ?
-      !!history[year][month + 1] : !!history[year + 1];
-  }
+  const history = JSON.parse(localStorage.getItem('history'));
+  const chainHistory = JSON.parse(localStorage.getItem('chainHistory')) || [];
+  const numRecDays = history.numRecDays;
 
-  function changeMonth() {
-    isAnimating = true;
-    setTimeout(() => {
-      isAnimating = false;
-      visibleMonth = populateMonth();
-    }, 300)
-  }
+  const yesterday = new Date(yesterdayEpoch($day.getTime()));
 
-  function showPrevMonth() {
-    if (month) {
-      month = month - 1;
-    } else {
-      month = 11;
-      year = year - 1;
-    }
-    changeMonth();
-  }
+  let year = yesterday.getFullYear();
+  let month = yesterday.getMonth();
+  let visibleMonth = populateMonth();
+  let isAnimating = false;
+  let detail = null;
 
-  function showNextMonth() {
-    if (month !== 11) {
-      month = month + 1;
-    } else {
-      month = 0;
-      year = year + 1;
-    }
-    changeMonth();
-  }
+  $: monthName = months[month];
+  $: isPrevMonth = month ?
+    !!history[year][month - 1] : !!history[year - 1];
+  $: isNextMonth = month !== 11 ?
+    !!history[year][month + 1] : !!history[year + 1];
 
   function populateMonth() {
     let monthArray = history[year][month];
@@ -125,10 +80,38 @@
     return date.setDate(date.getDate() -1);
   }
 
+  function changeMonth() {
+    isAnimating = true;
+    setTimeout(() => {
+      isAnimating = false;
+      visibleMonth = populateMonth();
+    }, 300)
+  }
+
+  function showPrevMonth() {
+    if (month) {
+      month = month - 1;
+    } else {
+      month = 11;
+      year = year - 1;
+    }
+    changeMonth();
+  }
+
+  function showNextMonth() {
+    if (month !== 11) {
+      month = month + 1;
+    } else {
+      month = 0;
+      year = year + 1;
+    }
+    changeMonth();
+  }
+
   function isCompletedStyles(isCompleted, epoch) {
     let submittedClass = '';
     // if day was just submitted and the day is the last submitted day
-    if (isSubmitted && epoch === yesterdayEpoch($day)) {
+    if ($isSubmitted && epoch === yesterdayEpoch($day)) {
       submittedClass = ' animatePop';
     }
     if (isCompleted === true) return 'bg-green-500' + submittedClass
@@ -156,7 +139,7 @@
 <div class="{$theme.text} text-center">
   <div class="flex justify-center items-center">
     <h2 class="text-4xl mr-8">Your History</h2>
-    <p class="rounded-full shadow w-16 h-16 text-sm relative halo {isSubmitted && 'animateRotate'}">
+    <p class="rounded-full shadow w-16 h-16 text-sm relative halo {$isSubmitted && 'animateRotate'}">
       <span class="{(numRecDays > 99) ? 'text-2xl mt-2' : 'text-3xl'} block -mb-3">{numRecDays}</span>
       days
     </p>

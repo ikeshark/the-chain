@@ -10,6 +10,7 @@
 
   export let isMobile;
   export let tab;
+  export let hasHistory;
 
   function changeTab(e) {
     dispatch('changeTab', { value: e.target.value || e.target.parentNode.value })
@@ -37,14 +38,16 @@
     {#if !isMobile}<span class="leading-tight {$theme.invertText}">EDIT CHAIN</span>{/if}
     <span class="menuIcon block {tab === 'edit' ? 'bg-white' : 'bg-gray-500'}">✏️</span>
   </button>
-  <button
-    type="button" value="calendar"
-    on:click={changeTab}
-    class="menuBtn block calendar font-bold"
-  >
-    {#if !isMobile}<span class="leading-tight {$theme.invertText}">HISTORY</span>{/if}
-    <span class="menuIcon block {tab === 'calendar' ? 'bg-white' : 'bg-gray-500'}">📅</span>
-  </button>
+  {#if hasHistory}
+    <button
+      type="button" value="calendar"
+      on:click={changeTab}
+      class="menuBtn block calendar font-bold"
+    >
+      {#if !isMobile}<span class="leading-tight {$theme.invertText}">HISTORY</span>{/if}
+      <span class="menuIcon block {tab === 'calendar' ? 'bg-white' : 'bg-gray-500'}">📅</span>
+    </button>
+  {/if}
   <button
     type="button" value="user"
     on:click={changeTab}

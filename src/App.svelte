@@ -11,12 +11,12 @@
 	import Toast from './components/Toast.svelte';
 	import Nav from './components/Nav.svelte';
 
-	import { theme, themeName, day } from './stores.js'
+	import { theme, themeName, day, isSubmitted } from './stores.js'
 
 	let isNav = false;
 	let isFirstTime = true;
-	let isSubmitted = false;
 	let isIntro = true;
+	let hasHistory = !!localStorage.history;
 
 	let tab = 'today';
 
@@ -70,9 +70,6 @@
 	$: if (tasks.length) localStorage.setItem('tasks', JSON.stringify(tasks));
 
 	function changeTab({ detail }) {
-		// isSubmitted is used to trigger animations right after submit
-		//// once they navigate away from page with animations we want to not trigger anymore
-		isSubmitted = false;
 		tab = detail.value;
 		isNav = false;
 	}
@@ -121,7 +118,6 @@
 		localStorage.setItem('history', JSON.stringify(history));
 		localStorage.setItem('currentDay', $day.getTime());
 		localStorage.setItem('currentStreak', currentStreak);
-		tab = 'calendar';
 		if (currentStreak > longestStreak) {
 			longestStreak = currentStreak;
 			localStorage.setItem('longestStreak', longestStreak);
@@ -131,8 +127,10 @@
 		tasks = tasks.map(task => {
 			return { ...task, isCompleted: false }
 		});
-		isSubmitted = true;
-		setTimeout(() => isSubmitted = false, 3000);
+		if (!hasHistory) hasHistory = true;
+		isSubmitted.submit();
+		tab = 'calendar';
+
 	}
 	function submitChain(e) {
 		tasks = e.detail.chain;
@@ -193,11 +191,13 @@
 <Tailwindcss />
 
 <div class="mainWrapper p-2 h-screen mx-auto md:flex relative overflow-hidden {$theme.bg}">
-	<Nav
-		isMobile={false}
-		on:changeTab={changeTab}
-		{tab}
-	/>
+	{#if !isFirstTime}
+		<Nav
+			isMobile={false}
+			on:changeTab={changeTab}
+			{tab}
+		/>
+	{/if}
 	<div class="grid relative w-full h-full md:px-4">
 		<header>
 			<h1 class="text-3xl mb-2 text-center {$theme.text}">Don’t Break the Chain</h1>
@@ -246,13 +246,12 @@
 				in:scale={{delay: 200, easing: backInOut }}
 				out:scale
 			>
-				<Calendar {isSubmitted} {isFuture} />
+				<Calendar />
 			</main>
 		{:else if tab === 'user'}
 			<main in:scale={{start: 0.3, delay: 200, easing: backInOut }} out:scale>
 				<User
 					{badges}
-					{isSubmitted}
 					{longestStreak}
 					on:setTheme={setTheme}
 					on:changeTheme={changeTheme}
@@ -265,7 +264,7 @@
 				class="absolute top-0 left-0 mt-2 w-full"
 			>
 				{#each toasts as { id, message }}
-					<Toast {id} {message} {$theme} on:deleteToast={deleteToast} />
+					<Toast {id} {message} on:deleteToast={deleteToast} />
 				{/each}
 			</div>
 		{/if}

@@ -82,7 +82,18 @@ export const tasks = createTask();
 // MISC
 // .....
 export const isFirstTime = writable(true);
-export const isSubmitted = writable(true);
+
+function createIsSubmitted() {
+  const { subscribe, set, update } = writable(false);
+  return {
+    subscribe,
+    submit: () => {
+      set(true);
+      setTimeout(() => set(false), 6000);
+    }
+  }
+}
+export const isSubmitted = createIsSubmitted();
 
 // https://fireship.io/snippets/custom-svelte-stores/
 // https://higsch.me/2019/06/22/2019-06-21-svelte-local-storage/

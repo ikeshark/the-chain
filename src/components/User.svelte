@@ -3,11 +3,10 @@
   import Confirm from './Confirm.svelte';
   const dispatch = createEventDispatcher();
 
-  import { theme, themes }  from '../stores.js'
+  import { theme, themes, isSubmitted }  from '../stores.js'
 
   export let longestStreak;
   export let badges;
-  export let isSubmitted;
 
   let myBadges = badges.filter(mark => longestStreak >= mark);
 
@@ -98,7 +97,7 @@
 {:else}
   <div class="scroll overflow-y-scroll h-auto border-double border-8 {$theme.border}">
     {#each myBadges as badge}
-      <div class="starOuter relative mx-auto h-32 w-32 my-12 {isSubmitted && 'animate'}">
+      <div class="starOuter relative mx-auto h-32 w-32 my-12 {$isSubmitted && 'animate'}">
         <div class="starInner z-10 absolute top-0 left-0 w-full h-full flex items-center justify-center">
           <span
             class="badge w-full h-full text-5xl z-10 rounded-full text-center {$theme.invertBg} {$theme.invertText} {$theme.invertBorder} font-bold border-8 border-double"

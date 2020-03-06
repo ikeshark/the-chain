@@ -1,10 +1,11 @@
 <script>
   import { createEventDispatcher } from 'svelte';
+  import { theme } from '../stores.js';
+
   const dispatch = createEventDispatcher();
 
   export let id;
   export let message;
-  export let theme;
 
   const to = setTimeout(deleteToast, 5000);
 
@@ -16,7 +17,7 @@
 
 <div
   {id}
-  class="{theme.invertBg} {theme.invertText} relative py-2 px-8 border-2 {theme.invertBorder} rounded-lg border-solid mt-2"
+  class="{$theme.invertBg} {$theme.invertText} relative py-2 px-8 border-2 {$theme.invertBorder} rounded-lg border-solid mt-2"
   on:click={deleteToast}
 >
   {message}
