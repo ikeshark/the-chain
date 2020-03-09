@@ -4,13 +4,11 @@
 
   import { createEventDispatcher } from 'svelte';
 
-  import { theme } from '../stores.js';
+  import { theme, tab, hasHistory } from '../stores.js';
 
   const dispatch = createEventDispatcher();
 
   export let isMobile;
-  export let tab;
-  export let hasHistory;
 
   function changeTab(e) {
     dispatch('changeTab', { value: e.target.value || e.target.parentNode.value })
@@ -28,7 +26,7 @@
     class="menuBtn block today font-bold"
   >
     {#if !isMobile}<span class="leading-tight {$theme.invertText}">HOME</span>{/if}
-    <span class="menuIcon block {tab === 'today' ? 'bg-white' : 'bg-gray-500'}">🏠</span>
+    <span class="menuIcon block {$tab === 'today' ? 'bg-white' : 'bg-gray-500'}">🏠</span>
   </button>
   <button
     type="button" value="edit"
@@ -36,16 +34,16 @@
     class="menuBtn block edit font-bold"
   >
     {#if !isMobile}<span class="leading-tight {$theme.invertText}">EDIT CHAIN</span>{/if}
-    <span class="menuIcon block {tab === 'edit' ? 'bg-white' : 'bg-gray-500'}">✏️</span>
+    <span class="menuIcon block {$tab === 'edit' ? 'bg-white' : 'bg-gray-500'}">✏️</span>
   </button>
-  {#if hasHistory}
+  {#if $hasHistory}
     <button
       type="button" value="calendar"
       on:click={changeTab}
       class="menuBtn block calendar font-bold"
     >
       {#if !isMobile}<span class="leading-tight {$theme.invertText}">HISTORY</span>{/if}
-      <span class="menuIcon block {tab === 'calendar' ? 'bg-white' : 'bg-gray-500'}">📅</span>
+      <span class="menuIcon block {$tab === 'calendar' ? 'bg-white' : 'bg-gray-500'}">📅</span>
     </button>
   {/if}
   <button
@@ -54,7 +52,7 @@
     class="menuBtn block user font-bold"
   >
     {#if !isMobile}<span class="leading-tight {$theme.invertText}">BADGES & SETTINGS</span>{/if}
-    <span class="menuIcon block {tab === 'user' ? 'bg-white' : 'bg-gray-500'}">👤</span>
+    <span class="menuIcon block {$tab === 'user' ? 'bg-white' : 'bg-gray-500'}">👤</span>
   </button>
 </nav>
 

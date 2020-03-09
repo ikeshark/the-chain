@@ -43,7 +43,7 @@ export const themes = {
 }
 // optional night invertBorder = border-gray-500
 // optional night bg = bg-blue-900
-export const themeName = writable('night');
+export const themeName = writable(localStorage.theme || 'night');
 export const theme = derived(themeName, $themeName => themes[$themeName])
 
 // ......
@@ -59,30 +59,9 @@ export const day = writable(
     formatDate(new Date().getTime())
 );
 
-// ......
-// TASKS
-// ......
-function createTask() {
-  const { subscribe, set, update } = writable(
-    JSON.parse(localStorage.getItem('tasks')) || []
-  );
-
-  return {
-    subscribe,
-    set,
-    update,
-    reset: () => update(tasks => tasks.map(task => {
-      return { ...task, isCompleted: false }
-    }))
-  }
-}
-export const tasks = createTask();
-
 // .....
 // MISC
 // .....
-export const isFirstTime = writable(true);
-
 function createIsSubmitted() {
   const { subscribe, set, update } = writable(false);
   return {
@@ -95,13 +74,28 @@ function createIsSubmitted() {
 }
 export const isSubmitted = createIsSubmitted();
 
+function createToasts() {
+  const { subscribe, set, update } = writable([]);
+  let id = 0;
+  return {
+    subscribe,
+    update,
+    create: message => update(toasts => {
+      id++;
+      return [...toasts, { id, message }]
+    })
+  }
+}
+export const toasts = createToasts();
+export const badges = [365, 180, 90, 28, 14, 7, 1];
+
 // https://fireship.io/snippets/custom-svelte-stores/
 // https://higsch.me/2019/06/22/2019-06-21-svelte-local-storage/
 
 const createPersistedStore = (key, defaultValue) => {
-	const initialJson = localStorage.getItem(key)
-	const initialValue = initialJson ? JSON.parse(initialJson) : defaultValue
-	const store = writable(initialValue)
+	const initialJson = localStorage.getItem(key);
+	const initialValue = initialJson ? JSON.parse(initialJson) : defaultValue;
+	const store = writable(initialValue);
 
 	const subscribe = fn =>
 		store.subscribe(current => {
@@ -111,8 +105,38 @@ const createPersistedStore = (key, defaultValue) => {
 
 	return {
 		subscribe,
-		set: store.set
+		set: store.set,
+    update: store.update
 	}
 }
+export const isFirstTime = writable(!!localStorage.tasks ? false : true);
+export const currentStreak = createPersistedStore('currentStreak', 0);
+export const longestStreak = createPersistedStore('longestStreak', 0);
 
-export const store = createPersistedStore("dogs", {visible: false, dogs: 0})
+// ......
+// TASKS
+// ......
+// function createTask() {
+//   const { subscribe, set, update } = writable(
+//     JSON.parse(localStorage.getItem('tasks')) || []
+//   );
+//
+//   return {
+//     subscribe,
+//     set,
+//     update,
+//     reset: () => update(tasks => tasks.map(task => {
+//       return { ...task, isCompleted: false }
+//     }))
+//   }
+// }
+export const hasHistory = writable(!!localStorage.history)
+export const tasks = createPersistedStore('tasks', []);
+export const tab = writable(localStorage.tasks ? 'today' : 'edit');
+function getVersion() {
+  if (localStorage.chainHistory) {
+    const chainHistory = JSON.parse(localStorage.chainHistory);
+    return chainHistory[chainHistory.length - 1].version
+  } else return 0
+}
+export const version = writable(getVersion());

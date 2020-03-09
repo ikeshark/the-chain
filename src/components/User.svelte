@@ -3,25 +3,27 @@
   import Confirm from './Confirm.svelte';
   const dispatch = createEventDispatcher();
 
-  import { theme, themes, isSubmitted }  from '../stores.js'
+  import { themeName, theme, themes, toasts, isSubmitted, badges, longestStreak }  from '../stores.js'
 
-  export let longestStreak;
-  export let badges;
-
-  let myBadges = badges.filter(mark => longestStreak >= mark);
+  let myBadges = badges.filter(mark => $longestStreak >= mark);
 
   let isConfirming = false;
   let message = '';
   let tab = 'badges';
 
-  function changeTheme(e) {
-    dispatch('changeTheme', { newTheme: e.target.value });
+  function changeTheme({ target }) {
+		themeName.set(target.value);
+	}
+  function setTheme({ target }) {
+    var data = new FormData(target);
+    // should i see if theme has changed?
+    localStorage.setItem('theme', data.get('theme'));
+    toasts.create('New Theme Successfully Saved')
+    // createToast({ detail: { message:
+    // 	'New Theme Successfully Saved'
+    // } });
   }
-  function setTheme(e) {
-    var data = new FormData(e.target);
-    dispatch('setTheme', { newTheme: data.get('theme') });
-    dispatch('createToast', { message: 'New theme saved' });
-  }
+
   function clearStorage() {
     localStorage.clear();
     location.reload();

@@ -1,22 +1,19 @@
 <script>
   import { createEventDispatcher } from 'svelte';
-  import { theme } from '../stores.js';
-
-  const dispatch = createEventDispatcher();
+  import { theme, toasts } from '../stores.js';
 
   export let id;
   export let message;
 
-  const to = setTimeout(deleteToast, 5000);
-
   function deleteToast() {
     if (to) clearTimeout(to);
-    dispatch('deleteToast', { id })
+    toasts.update(toasts => toasts.filter(toast => toast.id !== id))
   }
+
+  const to = setTimeout(deleteToast, 5000);
 </script>
 
 <div
-  {id}
   class="{$theme.invertBg} {$theme.invertText} relative py-2 px-8 border-2 {$theme.invertBorder} rounded-lg border-solid mt-2"
   on:click={deleteToast}
 >
@@ -30,5 +27,6 @@
     transform: translateX(-50%);
     max-width: 250px;
     text-align: center;
+    z-index: 99999999;
   }
 </style>
