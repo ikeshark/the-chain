@@ -139,7 +139,7 @@
 <div class="{$theme.text} text-center">
   <div class="flex justify-center items-center">
     <h2 class="text-4xl mr-8">Your History</h2>
-    <p class="rounded-full shadow w-16 h-16 text-sm relative halo {$isSubmitted && 'animateRotate'}">
+    <p class="{$theme.invertBg} {$theme.invertText} rounded-full shadow w-16 h-16 text-sm relative halo {$isSubmitted && 'animateRotate'}">
       <span class="{(numRecDays > 99) ? 'text-2xl mt-2' : 'text-3xl'} block -mb-3">{numRecDays}</span>
       days
     </p>
@@ -253,7 +253,7 @@
     border-bottom-width: 2px;
     border-radius: 50%;
 
-    box-shadow: 0 1px 12px currentColor;
+    box-shadow: 0 1px 6px currentColor;
   }
   @keyframes rotate {
     0% {transform: rotate(0deg)}

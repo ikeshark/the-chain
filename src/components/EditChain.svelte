@@ -81,7 +81,6 @@
 		{#each titles as title}
 			<li class="flex justify-between items-center last:mb-10 py-1 px-2 shadow-sm border {$theme.border} {$theme.bg} text-xl">
 				<span>{title}</span>
-
 				<button
 					type="button"
 					class="border-0"

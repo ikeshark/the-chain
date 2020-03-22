@@ -1,4 +1,5 @@
 <script>
+	import Confirm from './Confirm.svelte';
 	import {
 		badges,
 		currentStreak,
@@ -14,6 +15,9 @@
 
 	$: tasksLeft = $tasks.filter(task => task.isCompleted === false).length;
 	$: isFuture = (new Date().getTime() < $day.getTime());
+
+	let isConfirming = false;
+	let message = '';
 
 	function toggleComplete({ target }) {
 		const id = parseInt(target.value);
@@ -31,6 +35,11 @@
 			newTasks.sort((a,b) => a.id - b.id);
 			return newTasks;
 		});
+	}
+
+	function confirmSubmit() {
+		message = 'Are you sure you want to submit an incomplete day? This will break your chain!';
+		isConfirming = true;
 	}
 
 	function submitDay() {
@@ -103,32 +112,63 @@
 
   {#each $tasks as { title, id, isCompleted }}
     <label
-			class="py-1 px-2 mb-1 shadow-sm border {$theme.border} {$theme.text} {$theme.bg} text-xl last:mb-12"
+			class="flex items-center relative py-1 px-2 mb-1 shadow-sm border {$theme.border} {$theme.text} {$theme.bg} text-xl last:mb-12"
 		>
-    	{title}
-
     	{#if !isFuture}
 				<input
-	    		class="float-left mt-2 mr-2"
+	    		class="sr-only"
 	    		type="checkbox"
 	        value={id}
 	    		on:change={toggleComplete}
 					checked={isCompleted}
 	    	>
+				<div class="checkbox h-5 w-5 mr-3 border-2 flex items-center justify-center {
+					isCompleted ?
+						`scale-lg ${$theme.invertBorder} ${$theme.invertBg} ${$theme.invertText}` :
+						`${$theme.border} ${$theme.bg} ${$theme.text}`
+					} {isCompleted ? $theme.invertBg : $theme.bg} ">
+					{#if isCompleted}
+						<div class="check w-1/2 h-full"></div>
+					{/if}
+				</div>
 			{/if}
+				<span>{title}</span>
     </label>
   {/each}
 </div>
+
 {#if !isFuture}
 	<button
 		class="absolute bottom-0 left-0 m-4 border-gray-800 border-solid bg-gray-200 py-1 px-3 text-2xl font-bold rounded-lg border-2"
-		on:click={submitDay}
+		on:click={tasksLeft ? confirmSubmit : submitDay}
 	>
 		Submit
 	</button>
 {/if}
 
+{#if isConfirming}
+	<Confirm
+		{message}
+		on:confirm={submitDay}
+		on:dismiss={() => isConfirming = false}
+	/>
+{/if}
+
 <style>
-	input { transform: scale(1.5); }
+	.scale-lg { transform: scale(1.2); }
 	#scroll { max-height: calc(100vh - 13rem); }
+	.checkbox {
+		box-shadow: 2px 2px 1px currentColor;
+		border-radius: 4px;
+	}
+	.check {
+		border-width: 0 3px 3px 0;
+		border-color: currentColor;
+		animation: checkGrow 0.2s 1 ease-in-out;
+		transform: rotate(45deg) scale(0.8) translate(-1px, -1px);
+	}
+	@keyframes checkGrow {
+		from {transform: rotate(45deg) scale(0.2) translate(-1px, -1px)}
+		to {transform: rotate(45deg) scale(0.9) translate(-1px, -1px)}
+	}
 </style>
