@@ -1,6 +1,7 @@
 const purgecss = require('@fullhuman/postcss-purgecss')({
   content: [
     './**/**/*.html',
+    './src/stores.js',
     './**/**/*.svelte'
   ],
 

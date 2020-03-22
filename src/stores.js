@@ -5,12 +5,12 @@ import { writable, derived } from 'svelte/store';
 // ......
 export const themes = {
   day: {
-    bg: 'bg-orange-100',
-    border: 'border-red-800',
-    text: 'text-red-800',
-    invertBg: 'bg-red-800',
-    invertBorder: 'border-orange-500',
-    invertText: 'text-orange-200',
+    bg: 'bg-blue-200',
+    border: 'border-gray-600',
+    text: 'text-black',
+    invertBg: 'bg-gray-800',
+    invertBorder: 'border-gray-500',
+    invertText: 'text-gray-200',
     name: 'day',
   },
   night: {
@@ -22,23 +22,23 @@ export const themes = {
     invertText: 'text-gray-800',
     name:'night'
   },
-  green: {
-    bg: 'bg-green-900',
-    border: 'border-yellow-400',
-    text: 'text-yellow-300',
-    invertBg: 'bg-green-200',
-    invertBorder: 'border-green-700',
-    invertText: 'text-green-900',
-    name:'green'
+  yellow: {
+    bg: 'bg-gray-800',
+    border: 'border-yellow-600',
+    text: 'text-yellow-400',
+    invertBg: 'bg-yellow-400',
+    invertBorder: 'border-gray-800',
+    invertText: 'text-gray-900',
+    name:'yellow'
   },
-  indigo: {
-    bg: 'bg-indigo-800',
-    border: 'border-indigo-200',
-    text: 'text-purple-300',
-    invertBg: 'bg-indigo-300',
-    invertBorder: 'border-blue-700',
-    invertText: 'text-blue-900',
-    name:'indigo'
+  pink: {
+    bg: 'bg-gray-900',
+    border: 'border-pink-700',
+    text: 'text-pink-400',
+    invertBg: 'bg-pink-400',
+    invertBorder: 'border-pink-500',
+    invertText: 'text-gray-900',
+    name:'pink'
   },
 }
 // optional night invertBorder = border-gray-500
