@@ -1,6 +1,10 @@
 <script>
 	import { createEventDispatcher } from 'svelte';
 	import { fade } from 'svelte/transition';
+
+	import Modal from './Modal.svelte';
+	import Welcome from './Welcome.svelte';
+
 	import {
 		currentStreak,
 		day,
@@ -13,6 +17,8 @@
 
 	let titles = $tasks.map(task => task.title);
 	let newTitle = '';
+
+	let isWelcome = false;
 
 	const dispatch = createEventDispatcher();
 
@@ -42,6 +48,7 @@
 
 		if ($isFirstTime) {
 			isFirstTime.set(false);
+			localStorage.hasVisited = true;
 			version.set(1);
 			chainHistory = [{
 				version: $version,
@@ -118,6 +125,20 @@
 		</button>
 	{/if}
 </div>
+{#if $isFirstTime}
+	<button
+		on:click="{() => isWelcome = true}"
+		class="border-0 block mx-auto mt-4 text-lg italic underline {$theme.text}"
+	>
+		What is the chain?
+	</button>
+{/if}
+{#if isWelcome}
+	<Modal on:closeModal="{() => isWelcome = false}">
+		<Welcome />
+	</Modal>
+{/if}
+
 
 <style>
 	ul {max-height: calc(100vh - 24.5rem);}

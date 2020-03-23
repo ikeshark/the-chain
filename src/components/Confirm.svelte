@@ -17,7 +17,7 @@
 
 
 <Modal on:closeModal={dismiss}>
-  <div class="w-10/12 bg-white p-4 border-double border-black border-8">
+  <div class="w-10/12 max-666 bg-white p-4 border-double border-black border-8">
     <h2 class="text-2xl font-bold text-center mb-4">Are you sure?</h2>
     <p class="mb-4 text-xl">{message}</p>
     <button
@@ -30,3 +30,9 @@
     >ABORT</button>
   </div>
 </Modal>
+
+<style>
+  .max-666 {
+    max-width: 666px;
+  }
+</style>

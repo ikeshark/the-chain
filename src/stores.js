@@ -23,10 +23,10 @@ export const themes = {
     name:'night'
   },
   yellow: {
-    bg: 'bg-gray-800',
+    bg: 'bg-gray-900',
     border: 'border-yellow-600',
     text: 'text-yellow-400',
-    invertBg: 'bg-yellow-400',
+    invertBg: 'bg-yellow-300',
     invertBorder: 'border-gray-800',
     invertText: 'text-gray-900',
     name:'yellow'
@@ -109,30 +109,17 @@ const createPersistedStore = (key, defaultValue) => {
     update: store.update
 	}
 }
-export const isFirstTime = writable(!!localStorage.tasks ? false : true);
+export const isFirstTime = writable(localStorage.hasVisited ? false : true);
 export const currentStreak = createPersistedStore('currentStreak', 0);
 export const longestStreak = createPersistedStore('longestStreak', 0);
 
 // ......
 // TASKS
 // ......
-// function createTask() {
-//   const { subscribe, set, update } = writable(
-//     JSON.parse(localStorage.getItem('tasks')) || []
-//   );
-//
-//   return {
-//     subscribe,
-//     set,
-//     update,
-//     reset: () => update(tasks => tasks.map(task => {
-//       return { ...task, isCompleted: false }
-//     }))
-//   }
-// }
+
 export const hasHistory = writable(!!localStorage.history)
 export const tasks = createPersistedStore('tasks', []);
-export const tab = writable(localStorage.tasks ? 'today' : 'edit');
+export const tab = writable(localStorage.hasVisited ? 'today' : 'edit');
 function getVersion() {
   if (localStorage.chainHistory) {
     const chainHistory = JSON.parse(localStorage.chainHistory);
