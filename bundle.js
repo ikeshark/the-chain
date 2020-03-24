@@ -4452,7 +4452,7 @@ var app = (function () {
     	return child_ctx;
     }
 
-    // (43:1) {#if !$isFirstTime}
+    // (43:2) {#if !$isFirstTime}
     function create_if_block_7(ctx) {
     	let current;
     	const nav = new Nav({ props: { isMobile: false } });
@@ -4482,7 +4482,7 @@ var app = (function () {
     	};
     }
 
-    // (79:28) 
+    // (79:29) 
     function create_if_block_6(ctx) {
     	let main;
     	let main_intro;
@@ -4533,7 +4533,7 @@ var app = (function () {
     	};
     }
 
-    // (71:32) 
+    // (71:33) 
     function create_if_block_5(ctx) {
     	let main;
     	let main_intro;
@@ -4578,7 +4578,7 @@ var app = (function () {
     	};
     }
 
-    // (67:28) 
+    // (67:29) 
     function create_if_block_4$2(ctx) {
     	let main;
     	let main_intro;
@@ -4629,7 +4629,7 @@ var app = (function () {
     	};
     }
 
-    // (63:2) {#if $tab === 'today'}
+    // (63:3) {#if $tab === 'today'}
     function create_if_block_3$2(ctx) {
     	let main;
     	let main_intro;
@@ -4680,7 +4680,7 @@ var app = (function () {
     	};
     }
 
-    // (85:2) {#if $toasts.length && !isIntro}
+    // (85:3) {#if $toasts.length && !isIntro}
     function create_if_block_2$4(ctx) {
     	let div;
     	let div_transition;
@@ -4776,7 +4776,7 @@ var app = (function () {
     	};
     }
 
-    // (90:4) {#each $toasts as { id, message }}
+    // (90:5) {#each $toasts as { id, message }}
     function create_each_block$5(ctx) {
     	let current;
 
@@ -4883,6 +4883,7 @@ var app = (function () {
 
     function create_fragment$b(ctx) {
     	let t0;
+    	let div10;
     	let div9;
     	let t1;
     	let div8;
@@ -4910,7 +4911,7 @@ var app = (function () {
     	let current_block_type_index;
     	let if_block1;
     	let t11;
-    	let div9_class_value;
+    	let div10_class_value;
     	let t12;
     	let t13;
     	let if_block4_anchor;
@@ -4940,6 +4941,7 @@ var app = (function () {
     		c() {
     			create_component(tailwindcss.$$.fragment);
     			t0 = space();
+    			div10 = element("div");
     			div9 = element("div");
     			if (if_block0) if_block0.c();
     			t1 = space();
@@ -4982,12 +4984,14 @@ var app = (function () {
     			attr(div7, "class", div7_class_value = "flex items-center justify-center mb-4 " + /*$theme*/ ctx[2].text + " svelte-liskfb");
     			attr(header, "class", "svelte-liskfb");
     			attr(div8, "class", "grid relative w-full h-full md:px-4 svelte-liskfb");
-    			attr(div9, "class", div9_class_value = "mainWrapper p-2 h-screen mx-auto md:flex relative overflow-hidden " + /*$theme*/ ctx[2].bg + " svelte-liskfb");
+    			attr(div9, "class", "mainWrapper p-2 h-screen mx-auto md:flex relative overflow-hidden  svelte-liskfb");
+    			attr(div10, "class", div10_class_value = "" + (null_to_empty(/*$theme*/ ctx[2].bg) + " svelte-liskfb"));
     		},
     		m(target, anchor) {
     			mount_component(tailwindcss, target, anchor);
     			insert(target, t0, anchor);
-    			insert(target, div9, anchor);
+    			insert(target, div10, anchor);
+    			append(div10, div9);
     			if (if_block0) if_block0.m(div9, null);
     			append(div9, t1);
     			append(div9, div8);
@@ -5102,8 +5106,8 @@ var app = (function () {
     				check_outros();
     			}
 
-    			if (!current || dirty & /*$theme*/ 4 && div9_class_value !== (div9_class_value = "mainWrapper p-2 h-screen mx-auto md:flex relative overflow-hidden " + /*$theme*/ ctx[2].bg + " svelte-liskfb")) {
-    				attr(div9, "class", div9_class_value);
+    			if (!current || dirty & /*$theme*/ 4 && div10_class_value !== (div10_class_value = "" + (null_to_empty(/*$theme*/ ctx[2].bg) + " svelte-liskfb"))) {
+    				attr(div10, "class", div10_class_value);
     			}
 
     			if (!/*$isFirstTime*/ ctx[3]) {
@@ -5159,7 +5163,7 @@ var app = (function () {
     		d(detaching) {
     			destroy_component(tailwindcss, detaching);
     			if (detaching) detach(t0);
-    			if (detaching) detach(div9);
+    			if (detaching) detach(div10);
     			if (if_block0) if_block0.d();
 
     			if (~current_block_type_index) {
