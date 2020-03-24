@@ -38,63 +38,63 @@
 </script>
 
 <Tailwindcss />
-
-<div class="mainWrapper p-2 h-screen mx-auto md:flex relative overflow-hidden {$theme.bg}">
-	{#if !$isFirstTime}
-		<Nav
-			isMobile={false}
-			on:changeTab={changeTab}
-		/>
-	{/if}
-	<div class="grid relative w-full h-full md:px-4">
-		<header>
-			<h1 class="text-3xl mb-2 text-center {$theme.text}">Don’t Break the Chain</h1>
-			<div class="flex items-center justify-center mb-4 {$theme.text}">
-				<div class="chain"></div>
-				<div class="chain"></div>
-				<div class="chain"></div>
-				<div class="chain"></div>
-				<div class="chain"></div>
-				<div class="chain"></div>
-				<div class="chain"></div>
-			</div>
-		</header>
-
-		{#if $tab === 'today'}
-			<main in:scale={{start: 0.3, delay: 200, easing: backInOut }} out:scale>
-				<Today />
-			</main>
-		{:else if $tab === 'edit'}
-			<main in:scale={{start: 0.3, delay: 200, easing: backInOut }} out:scale>
-				<EditChain />
-			</main>
-		{:else if $tab === 'calendar'}
-			<main
-				class="relative"
-				in:scale={{delay: 200, easing: backInOut }}
-				out:scale
-			>
-				<Calendar />
-			</main>
-		{:else if $tab === 'user'}
-			<main in:scale={{start: 0.3, delay: 200, easing: backInOut }} out:scale>
-				<User />
-			</main>
+<div class="{$theme.bg}">
+	<div class="mainWrapper p-2 h-screen mx-auto md:flex relative overflow-hidden ">
+		{#if !$isFirstTime}
+			<Nav
+				isMobile={false}
+				on:changeTab={changeTab}
+			/>
 		{/if}
+		<div class="grid relative w-full h-full md:px-4">
+			<header>
+				<h1 class="text-3xl mb-2 text-center {$theme.text}">Don’t Break the Chain</h1>
+				<div class="flex items-center justify-center mb-4 {$theme.text}">
+					<div class="chain"></div>
+					<div class="chain"></div>
+					<div class="chain"></div>
+					<div class="chain"></div>
+					<div class="chain"></div>
+					<div class="chain"></div>
+					<div class="chain"></div>
+				</div>
+			</header>
 
-		{#if $toasts.length && !isIntro}
-			<div
-				transition:scale="{{ duration: 550, easing: backInOut }}"
-				class="absolute top-0 left-0 mt-2 w-full"
-			>
-				{#each $toasts as { id, message }}
-					<Toast {id} {message} />
-				{/each}
-			</div>
-		{/if}
-	</div> <!--end class grid -->
-</div> <!--end class mainWrapper -->
+			{#if $tab === 'today'}
+				<main in:scale={{start: 0.3, delay: 200, easing: backInOut }} out:scale>
+					<Today />
+				</main>
+			{:else if $tab === 'edit'}
+				<main in:scale={{start: 0.3, delay: 200, easing: backInOut }} out:scale>
+					<EditChain />
+				</main>
+			{:else if $tab === 'calendar'}
+				<main
+					class="relative"
+					in:scale={{delay: 200, easing: backInOut }}
+					out:scale
+				>
+					<Calendar />
+				</main>
+			{:else if $tab === 'user'}
+				<main in:scale={{start: 0.3, delay: 200, easing: backInOut }} out:scale>
+					<User />
+				</main>
+			{/if}
 
+			{#if $toasts.length && !isIntro}
+				<div
+					transition:scale="{{ duration: 550, easing: backInOut }}"
+					class="absolute top-0 left-0 mt-2 w-full"
+				>
+					{#each $toasts as { id, message }}
+						<Toast {id} {message} />
+					{/each}
+				</div>
+			{/if}
+		</div> <!--end class grid -->
+	</div> <!--end class mainWrapper -->
+</div>
 {#if !$isFirstTime}
 	<button
 		on:click={openNav}
