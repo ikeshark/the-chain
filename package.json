@@ -4,7 +4,7 @@
   "devDependencies": {
     "@fullhuman/postcss-purgecss": "^8.0.0",
     "gh-pages": "^5.0.0",
-    "postcss": "^8.4.31",
+    "postcss": "^8.5.14",
     "postcss-load-config": "^6.0.1",
     "rollup": "^3.30.0",
     "rollup-plugin-commonjs": "^10.0.0",
